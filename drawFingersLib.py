@@ -38,7 +38,7 @@ if __name__ == "__main__":
     data_folder = args.folder
     file_prefix = "".join(data_folder) + "\\" + args.prefix
 
-fileName = "_%sx%sx%s(%sx%sx%s)C%s_M%s_B%s.dxf" % (internalWidth, internalLength, internalHeight, numWidthFingers, numLengthFingers, numHeightFingers, cutClearence, materialThickness, dogBoneDia)
+fileName = "_%sx%sx%s(%sx%sx%s)C%s_M%s_D%s_B%s.dxf" % (internalWidth, internalLength, internalHeight, numWidthFingers, numLengthFingers, numHeightFingers, cutClearence, materialThickness, dogBoneDia, boneBulge)
 print(file_prefix + fileName)
 
 # Generate Bottom
