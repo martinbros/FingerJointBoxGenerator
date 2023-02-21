@@ -68,6 +68,6 @@ ptLst3, boundry, units = gen_Side(orgin=startPoint, rotation=0, numFingList=[num
 graphPoints(ptLst3, color="b")
 
 
-print("Width: %s\nLength: %s\nHeight: %s" % (np.around(units1, 2)[0],np.around(units1, 2)[1], np.around(units2, 2)[1]))
+print("Width: %s\nLength: %s\nHeight: %s" % (np.around(units1, 2)[0], np.around(units1, 2)[1], np.around(units2, 2)[1]))
 plt.axis('scaled')
 plt.show()
