@@ -1,4 +1,5 @@
 import pretty_errors
+import sys
 from boxLib import *
 
 internalWidth = 42.0 * 4 + 1
@@ -6,15 +7,15 @@ internalLength = 42.0 * 3 + 1
 internalHeight = 47.0
 materialThickness = 3.18
 
-numWidthFingers = 5
-numLengthFingers = 3
+numWidthFingers = 8
+numLengthFingers = 6
 numHeightFingers = 2
 
 dogBoneDia = 0.0
 boneBulge = 0.75
 fingerOutstick = 0.0
 fingerLength = materialThickness + fingerOutstick
-cutClearence = 1
+cutClearence = 0.2
 # Send cut send recommends 0.01in (0.005in per side) of clearence
 
 
