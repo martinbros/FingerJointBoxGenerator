@@ -2,7 +2,6 @@
 
 from argparse import ArgumentParser, RawTextHelpFormatter
 import pretty_errors
-import sys
 from boxLib import *
 
 internalWidth = 42.0 * 4 + 1
