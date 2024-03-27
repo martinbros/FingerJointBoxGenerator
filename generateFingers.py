@@ -37,8 +37,8 @@ class Edge:
             self.dogBoneOffsetY = dogBoneDia * (self.fingerLength / np.abs(self.fingerLength))
         
         elif dogBoneType == "X":
-            self.dogBoneOffsetX = dogBoneDia
-            self.dogBoneOffsetY = dogBoneDia * (self.fingerLength / np.abs(self.fingerLength))
+            self.dogBoneOffsetX = dogBoneDia * (1.0 / np.sqrt(2))
+            self.dogBoneOffsetY = dogBoneDia * (1.0 / np.sqrt(2)) * (self.fingerLength / np.abs(self.fingerLength))
         
         else:
             self.dogBoneOffsetX = 0.0
@@ -105,20 +105,24 @@ edgeXT.genFingerPointsBone(1.0, "X", True)
 edgeXF = Edge([0.0, 6.0], 3, -10.0, 0.5, 28.0, 0.0)
 edgeXF.genFingerPointsBone(1.0, "X", False)
 
-edgeA = Edge([0.0, 0.0], 3, -10.0, 0.0, 28.0, 0.0)
+edgeA = Edge([0.0, 0.0], 3, 10.0, -0.25, 28.0, 0.0)
 edgeA.genFingerPoints()
+
+edgeB = Edge([0.0, 1.0], 3, 10.0, 0.25, 28.0, 0.0)
+edgeB.genFingerPoints()
 
 
 plt.plot(edgeA.xList, edgeA.yList, color="k", marker="o")
+plt.plot(edgeB.xList, edgeB.yList, color="c", marker="o")
 
-plt.plot(edgeHT.xList, edgeHT.yList, color="b", marker="o")
-plt.plot(edgeHF.xList, edgeHF.yList, color="g", marker="o")
+#plt.plot(edgeHT.xList, edgeHT.yList, color="b", marker="o")
+#plt.plot(edgeHF.xList, edgeHF.yList, color="g", marker="o")
 
-plt.plot(edgeIT.xList, edgeIT.yList, color="r", marker="o")
-plt.plot(edgeIF.xList, edgeIF.yList, color="c", marker="o")
+#plt.plot(edgeIT.xList, edgeIT.yList, color="r", marker="o")
+#plt.plot(edgeIF.xList, edgeIF.yList, color="c", marker="o")
 
-plt.plot(edgeXT.xList, edgeXT.yList, color="m", marker="o")
-plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
+#plt.plot(edgeXT.xList, edgeXT.yList, color="m", marker="o")
+#plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
 
 plt.axis('scaled')
 
