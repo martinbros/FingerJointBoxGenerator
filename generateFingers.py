@@ -84,6 +84,32 @@ class Edge:
         self.yList[-1] = self.origin[-1]
         
         self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
+    
+    def rotateAndShift(self, angle, shiftOrigin=[0.0, 0.0]):
+        
+        origin = [0.0, 0.0]
+        
+        if angle != 0.0:
+            # convert angle to radians
+            angle_rad = np.radians(angle)
+            # create the rotation matrix
+            rotation_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad), 0],
+                                        [np.sin(angle_rad), np.cos(angle_rad), 0],
+                                        [0, 0, 1]])
+            # concatenate the matrices to create the transformation matrix
+            transformation_matrix = rotation_matrix
+            # create a matrix of column vectors from the points
+            points_matrix = np.hstack([np.dstack((self.xList, self.yList))[0], np.ones((len(self.xList), 1))]).T
+            
+            
+            # apply the transformation to the points
+            transformed_points = transformation_matrix @ points_matrix
+            
+            self.xList = transformed_points[0]
+            self.yList = transformed_points[1]
+            
+        self.xList = self.xList + shiftOrigin[0]
+        self.yList = self.yList + shiftOrigin[1]
         
         
     
@@ -111,9 +137,14 @@ edgeA.genFingerPoints()
 edgeB = Edge([0.0, 1.0], 3, 10.0, 0.25, 28.0, 0.0)
 edgeB.genFingerPoints()
 
+edgeC = Edge([0.0, 0.0], 3, 10.0, -0.25, 28.0, 0.0)
+edgeC.genFingerPoints()
+edgeC.rotateAndShift(90.0, [5.0, 5.0])
+
 
 plt.plot(edgeA.xList, edgeA.yList, color="k", marker="o")
 plt.plot(edgeB.xList, edgeB.yList, color="c", marker="o")
+plt.plot(edgeC.xList, edgeC.yList, color="g", marker="o")
 
 #plt.plot(edgeHT.xList, edgeHT.yList, color="b", marker="o")
 #plt.plot(edgeHF.xList, edgeHF.yList, color="g", marker="o")

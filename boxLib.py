@@ -98,7 +98,9 @@ def rotate_points(points, angle, origin=(0, 0)):
     # concatenate the matrices to create the transformation matrix
     transformation_matrix = translation_matrix @ rotation_matrix @ inverse_translation_matrix
     # create a matrix of column vectors from the points
+    #print(points[:, :2])
     points_matrix = np.hstack([points[:, :2], np.ones((len(points), 1))]).T
+    print(points_matrix)
     # apply the transformation to the points
     transformed_points = transformation_matrix @ points_matrix
 
