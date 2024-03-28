@@ -13,22 +13,22 @@ dogBoneType = "X"
 clearence = 0.2 / 2.0
 
 
-south = Edge(5, -materialThickness, clearence, boxInnerFootprint[0], 0.0)
+south = Edge(5, -materialThickness, -clearence, boxInnerFootprint[0], 0.0)
 south.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 
-east = Edge(7, -materialThickness, clearence, boxInnerFootprint[1], 0.0)
+east = Edge(7, -materialThickness, -clearence, boxInnerFootprint[1], 0.0)
 east.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 east.rotateAndShift([south.xList[-1], south.yList[-1]], 90.0)
 
-north = Edge(south.numFingers, -materialThickness, clearence, boxInnerFootprint[0], 0.0)
+north = Edge(south.numFingers, -materialThickness, -clearence, boxInnerFootprint[0], 0.0)
 north.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 north.rotateAndShift([east.xList[-1], east.yList[-1]], 180.0)
 
-west = Edge(east.numFingers, -materialThickness, clearence, boxInnerFootprint[1], 0.0)
+west = Edge(east.numFingers, -materialThickness, -clearence, boxInnerFootprint[1], 0.0)
 west.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 west.rotateAndShift([north.xList[-1], north.yList[-1]], 270.0)
 
-wallWest = Edge(east.numFingers, materialThickness, clearence * 2.0, boxInnerFootprint[1], 0.0)
+wallWest = Edge(east.numFingers, materialThickness, clearence, boxInnerFootprint[1], 0.0)
 wallWest.genFingerPointsBone(dogBoneDia, dogBoneType, False)
 wallWest.rotateAndShift([-1.0, 0.0], 90.0)
 

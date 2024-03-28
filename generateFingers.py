@@ -108,12 +108,12 @@ class Edge:
         self.xHole = np.cumsum(self.xHole)  # Generate all of the x-point for the extent of the gaps
         self.xHole = np.insert(self.xHole, 0, 0.0)  # Insert the starting point
         
-        pairList = list(zip(self.xHole, self.xHole[1:] + self.xHole[:1]))
+        pairList = list(zip(self.xHole, self.xHole[1:] + self.xHole[:1]))  # create pairs from the given x points, all iteratable pairs
         
         if invertHoles:
-            pairList = pairList[::2]
+            pairList = pairList[::2]  # Every other pair, starting with frist
         else:
-            pairList = pairList[1::2]
+            pairList = pairList[1::2]  # Every other pair, starting with second
         
         self.holesPoints = []
         for idx, xCords in enumerate(pairList):
@@ -125,16 +125,16 @@ class Edge:
                                  [xCords[1], yVal, 0],
                                  [xCords[1], -yVal, 1],
                                  [xCords[1] - self.dogBoneOffsetX, -yMax, 0],
-                                 [xCords[0], -yMax, 1],
+                                 [xCords[0], -yMax, 0],
                                  ])
             elif openEnds and idx == len(pairList) - 1:
                 hole = np.array([
                                 [xCords[1], yMax, 0],
                                 [xCords[0] + self.dogBoneOffsetX, yMax, 1],
                                 [xCords[0], yVal, 0],
-                                [xCords[0], -yVal, 0],
-                                [xCords[0] + self.dogBoneOffsetX, -yMax, 1],
-                                [xCords[1], -yMax, 1],
+                                [xCords[0], -yVal, 1],
+                                [xCords[0] + self.dogBoneOffsetX, -yMax, 0],
+                                [xCords[1], -yMax, 0],
                                 ])
                                 
                     
@@ -151,7 +151,7 @@ class Edge:
                                  ])
 
             x, y, b = hole.T   
-            plt.plot(x, y, color="m", marker="o")
+            #plt.plot(x, y, color="m", marker="o")
         
                 
         self.yList = np.full([1, len(self.xHole)], 1.0)
@@ -218,14 +218,18 @@ edgeA = Edge(3, 10.0, -0.25, 28.0, 0.0)
 edgeA.genFingerPoints()
 
 edgeB = Edge(3, 10.0, 0.25, 28.0, 0.0)
-edgeB.genHoleBone(1.0, "X", 10.0)
+edgeB.genHoleBone(1.0, "X", 10.0, True, True)
 
-edgeXF = Edge(3, 10.0, -0.25, 28.0, 0.0)
-edgeXF.genFingerPointsBone(1.0, "X", True)
+edgeXFF = Edge(3, -10.0, -0.25, 28.0, 0.0)
+edgeXFF.genFingerPointsBone(1.0, "X", False)
 
-plt.plot(edgeA.xList, edgeA.yList, color="k", marker="o")
-plt.plot(edgeXF.xList, edgeXF.yList, color="c", marker="o")
-plt.scatter(edgeB.xHole, edgeB.yList, color="b", marker="o")
+edgeXFT = Edge(3, -10.0, +0.25, 28.0, 0.0)
+edgeXFT.genFingerPointsBone(1.0, "X", True)
+
+#plt.plot(edgeA.xList, edgeA.yList, color="k", marker="o")
+#plt.scatter(edgeB.xHole, edgeB.yList, color="b", marker="o")
+plt.plot(edgeXFF.xList, edgeXFF.yList, color="m", marker="o")
+plt.plot(edgeXFT.xList, edgeXFT.yList, color="r", marker="o")
 
 #plt.plot(edgeHT.xList, edgeHT.yList, color="b", marker="o")
 #plt.plot(edgeHF.xList, edgeHF.yList, color="g", marker="o")
