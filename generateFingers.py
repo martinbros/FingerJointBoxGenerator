@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import pretty_errors
+#import pretty_errors
 import numpy as np
 import ezdxf
 import matplotlib.pyplot as plt
@@ -81,9 +81,84 @@ class Edge:
         
         self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
     
-    def rotateAndShift(self, shiftOrigin=[0.0, 0.0], angle=0.0, ):
+    def genHoleBone(self, dogBoneDia=0.0, dogBoneType=None, materialThick=2.0, invertHoles=False, openEnds=False):
         
-        origin = [0.0, 0.0]
+        if dogBoneType == "H":
+            self.dogBoneOffsetX = dogBoneDia
+            self.dogBoneOffsetY = 0.0
+        
+        elif dogBoneType == "I":
+            self.dogBoneOffsetX = 0.0
+            self.dogBoneOffsetY = dogBoneDia * (self.fingerLength / np.abs(self.fingerLength))
+        
+        elif dogBoneType == "X":
+            self.dogBoneOffsetX = dogBoneDia * (1.0 / np.sqrt(2))
+            self.dogBoneOffsetY = dogBoneDia * (1.0 / np.sqrt(2)) * (self.fingerLength / np.abs(self.fingerLength))
+        
+        else:
+            self.dogBoneOffsetX = 0.0
+            self.dogBoneOffsetY = 0.0
+        
+        yMax = materialThick / 2.0 + self.clearence
+        yVal = yMax - self.dogBoneOffsetY
+        
+        self.xHole = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1] # Create a tile of finger/gap widths
+        self.xHole[0] = self.xHole[0] + self.clearence + self.extra # For the first and last gaps, add on clearence and extra
+        self.xHole[-1] = self.xHole[-1] + self.clearence + self.extra
+        self.xHole = np.cumsum(self.xHole)  # Generate all of the x-point for the extent of the gaps
+        self.xHole = np.insert(self.xHole, 0, 0.0)  # Insert the starting point
+        
+        pairList = list(zip(self.xHole, self.xHole[1:] + self.xHole[:1]))
+        
+        if invertHoles:
+            pairList = pairList[::2]
+        else:
+            pairList = pairList[1::2]
+        
+        self.holesPoints = []
+        for idx, xCords in enumerate(pairList):
+            
+            if openEnds and idx == 0:
+                hole = np.array([ 
+                                 [xCords[0], yMax, 0],
+                                 [xCords[1] - self.dogBoneOffsetX, yMax, 1],
+                                 [xCords[1], yVal, 0],
+                                 [xCords[1], -yVal, 1],
+                                 [xCords[1] - self.dogBoneOffsetX, -yMax, 0],
+                                 [xCords[0], -yMax, 1],
+                                 ])
+            elif openEnds and idx == len(pairList) - 1:
+                hole = np.array([
+                                [xCords[1], yMax, 0],
+                                [xCords[0] + self.dogBoneOffsetX, yMax, 1],
+                                [xCords[0], yVal, 0],
+                                [xCords[0], -yVal, 0],
+                                [xCords[0] + self.dogBoneOffsetX, -yMax, 1],
+                                [xCords[1], -yMax, 1],
+                                ])
+                                
+                    
+            else:
+                hole = np.array([[xCords[0], yVal, 1], 
+                                 [xCords[0] + self.dogBoneOffsetX, yMax, 0],
+                                 [xCords[1] - self.dogBoneOffsetX, yMax, 1],
+                                 [xCords[1], yVal, 0],
+                                 [xCords[1], -yVal, 1],
+                                 [xCords[1] - self.dogBoneOffsetX, -yMax, 0],
+                                 [xCords[0] + self.dogBoneOffsetX, -yMax, 1],
+                                 [xCords[0], -yVal, 0],
+                                 [xCords[0], yVal, 0],
+                                 ])
+
+            x, y, b = hole.T   
+            plt.plot(x, y, color="m", marker="o")
+        
+                
+        self.yList = np.full([1, len(self.xHole)], 1.0)
+        
+        #self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
+
+    def rotateAndShift(self, shiftOrigin=[0.0, 0.0], angle=0.0, ):
         
         if angle != 0.0:
             # convert angle to radians
@@ -137,22 +212,20 @@ edgeXT.rotateAndShift([0.0, 5.0])
 edgeXF = Edge(3, -10.0, 0.5, 28.0, 0.0)
 edgeXF.genFingerPointsBone(1.0, "X", False)
 edgeXF.rotateAndShift([0.0, 6.0])
-
+"""
 
 edgeA = Edge(3, 10.0, -0.25, 28.0, 0.0)
 edgeA.genFingerPoints()
 
 edgeB = Edge(3, 10.0, 0.25, 28.0, 0.0)
-edgeB.genFingerPoints()
+edgeB.genHoleBone(1.0, "X", 10.0)
 
-edgeC = Edge(3, 10.0, -0.25, 28.0, 0.0)
-edgeC.genFingerPoints()
-edgeC.rotateAndShift([5.0, 5.0], 90.0)
-
+edgeXF = Edge(3, 10.0, -0.25, 28.0, 0.0)
+edgeXF.genFingerPointsBone(1.0, "X", True)
 
 plt.plot(edgeA.xList, edgeA.yList, color="k", marker="o")
-plt.plot(edgeB.xList, edgeB.yList, color="c", marker="o")
-plt.plot(edgeC.xList, edgeC.yList, color="g", marker="o")
+plt.plot(edgeXF.xList, edgeXF.yList, color="c", marker="o")
+plt.scatter(edgeB.xHole, edgeB.yList, color="b", marker="o")
 
 #plt.plot(edgeHT.xList, edgeHT.yList, color="b", marker="o")
 #plt.plot(edgeHF.xList, edgeHF.yList, color="g", marker="o")
@@ -164,7 +237,7 @@ plt.plot(edgeC.xList, edgeC.yList, color="g", marker="o")
 #plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
 
 plt.axis('scaled')
-
+"""
 doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
 msp = doc.modelspace()
 

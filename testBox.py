@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import pretty_errors
+#import pretty_errors
 from generateFingers import Edge
 import matplotlib.pyplot as plt
 
