@@ -17,10 +17,10 @@ class Edge:
     
     def dogBoneCheck(self, dogBoneDia):
         
-        while (2.5 * dogBoneDia > self.unit):
-            print("%s : %s" % (2.5 * dogBoneDia, self.unit - 2.0 * self.clearence - 2.0 * self.dogBoneOffsetX))
+        while (2.5 * dogBoneDia > self.unit - 2.0 * self.clearence - 2.0 * self.dogBoneOffsetX):
             self.numFingers -= 1
             self.unit = self.span / (2.0 * self.numFingers + 1.0)
+        
     
     def genFingerPoints(self):
         self.xList = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1] # Create a tile of finger/gap widths
@@ -109,7 +109,7 @@ class Edge:
             self.dogBoneOffsetX = 0.0
             self.dogBoneOffsetY = 0.0
             
-        self.dogBoneCheck
+        self.dogBoneCheck(dogBoneDia)
         
         yMax = materialThick / 2.0 + self.clearence
         yVal = yMax - self.dogBoneOffsetY
@@ -162,14 +162,9 @@ class Edge:
                                  [xCords[0], yVal, 0],
                                  ])
 
-            #x, y, b = hole.T   
-            #plt.plot(x, y, color="c", marker="o")
+            x, y, b = hole.T   
+            plt.plot(x, y, color="c", marker="o")
             self.holesPoints.append(hole)
-        
-                
-        self.yList = np.full([1, len(self.xHole)], 1.0)
-        
-        #self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
 
     def rotateAndShift(self, shiftOrigin=[0.0, 0.0], angle=0.0, ):
         
@@ -199,6 +194,13 @@ class Edge:
             self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
         else:
             self.fingerPoints = np.dstack((self.xList, self.yList))[0]
+
+def plotHoles (holeArrays, color="k"):
+    
+    for hole in holeArrays:
+        x, y, b = hole.T
+        print(x)
+        plt.plot(x, y, color=color, marker="o")
         
         
 """
@@ -254,11 +256,12 @@ edgeXF.rotateAndShift([0.0, 6.0])
 #plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
 
 
-bone = Edge(100, 10.0, 0.25, 15.0, 0.0)
-print(bone.numFingers)
+bone = Edge(100, 10.0, 0.25, 200.0, 0.0)
 bone.genFingerPointsBone(8.0, "I", True)
-print(bone.numFingers)
 plt.plot(bone.xList, bone.yList, color="k", marker="o")
+
+bone.genHoleBone(dogBoneDia=10.0, dogBoneType=None, materialThick=2.0, invertHoles=False, openEnds=False)
+#plotHoles(bone.holesPoints)
 
 plt.axis('scaled')
 """
