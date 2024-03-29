@@ -13,7 +13,14 @@ class Edge:
         self.span = span
         self.extra = extra
         
-        self.unit = span / (2.0 * numFingers + 1.0)  # Need to check if unit is less than dogBoneDia
+        self.unit = span / (2.0 * numFingers + 1.0)
+    
+    def dogBoneCheck(self, dogBoneDia):
+        
+        while (2.5 * dogBoneDia > self.unit):
+            print("%s : %s" % (2.5 * dogBoneDia, self.unit - 2.0 * self.clearence - 2.0 * self.dogBoneOffsetX))
+            self.numFingers -= 1
+            self.unit = self.span / (2.0 * self.numFingers + 1.0)
     
     def genFingerPoints(self):
         self.xList = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1] # Create a tile of finger/gap widths
@@ -24,6 +31,8 @@ class Edge:
         self.xList = np.insert(self.xList, 0, 0.0)  # Insert the starting point
         
         self.yList = np.tile([0.0, 0.0, self.fingerLength, self.fingerLength], self.numFingers + 1)[:-2]
+        
+        self.fingerPoints = np.dstack((self.xList, self.yList))[0]
         
     def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False):
         
@@ -42,7 +51,8 @@ class Edge:
         else:
             self.dogBoneOffsetX = 0.0
             self.dogBoneOffsetY = 0.0
-                       
+        
+        self.dogBoneCheck(dogBoneDia)            
         self.topVert = self.fingerLength - self.dogBoneOffsetY
         
         if invertBone:  # dogbone is on the bottom
@@ -98,6 +108,8 @@ class Edge:
         else:
             self.dogBoneOffsetX = 0.0
             self.dogBoneOffsetY = 0.0
+            
+        self.dogBoneCheck
         
         yMax = materialThick / 2.0 + self.clearence
         yVal = yMax - self.dogBoneOffsetY
@@ -150,8 +162,9 @@ class Edge:
                                  [xCords[0], yVal, 0],
                                  ])
 
-            x, y, b = hole.T   
-            #plt.plot(x, y, color="m", marker="o")
+            #x, y, b = hole.T   
+            #plt.plot(x, y, color="c", marker="o")
+            self.holesPoints.append(hole)
         
                 
         self.yList = np.full([1, len(self.xHole)], 1.0)
@@ -214,22 +227,22 @@ edgeXF.genFingerPointsBone(1.0, "X", False)
 edgeXF.rotateAndShift([0.0, 6.0])
 """
 
-edgeA = Edge(3, 10.0, -0.25, 28.0, 0.0)
-edgeA.genFingerPoints()
+#edgeA = Edge(3, 10.0, -0.25, 28.0, 0.0)
+#edgeA.genFingerPoints()
 
-edgeB = Edge(3, 10.0, 0.25, 28.0, 0.0)
-edgeB.genHoleBone(1.0, "X", 10.0, True, True)
+#edgeB = Edge(3, 10.0, 0.25, 28.0, 0.0)
+#edgeB.genHoleBone(1.0, "X", 10.0, True, True)
 
-edgeXFF = Edge(3, -10.0, -0.25, 28.0, 0.0)
-edgeXFF.genFingerPointsBone(1.0, "X", False)
+#edgeXFF = Edge(3, -10.0, -0.25, 28.0, 0.0)
+#edgeXFF.genFingerPointsBone(1.0, "X", False)
 
-edgeXFT = Edge(3, -10.0, +0.25, 28.0, 0.0)
-edgeXFT.genFingerPointsBone(1.0, "X", True)
+#edgeXFT = Edge(3, -10.0, +0.25, 28.0, 0.0)
+#edgeXFT.genFingerPointsBone(1.0, "X", True)
 
 #plt.plot(edgeA.xList, edgeA.yList, color="k", marker="o")
 #plt.scatter(edgeB.xHole, edgeB.yList, color="b", marker="o")
-plt.plot(edgeXFF.xList, edgeXFF.yList, color="m", marker="o")
-plt.plot(edgeXFT.xList, edgeXFT.yList, color="r", marker="o")
+#plt.plot(edgeXFF.xList, edgeXFF.yList, color="m", marker="o")
+#plt.plot(edgeXFT.xList, edgeXFT.yList, color="r", marker="o")
 
 #plt.plot(edgeHT.xList, edgeHT.yList, color="b", marker="o")
 #plt.plot(edgeHF.xList, edgeHF.yList, color="g", marker="o")
@@ -239,6 +252,13 @@ plt.plot(edgeXFT.xList, edgeXFT.yList, color="r", marker="o")
 
 #plt.plot(edgeXT.xList, edgeXT.yList, color="m", marker="o")
 #plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
+
+
+bone = Edge(100, 10.0, 0.25, 15.0, 0.0)
+print(bone.numFingers)
+bone.genFingerPointsBone(8.0, "I", True)
+print(bone.numFingers)
+plt.plot(bone.xList, bone.yList, color="k", marker="o")
 
 plt.axis('scaled')
 """
