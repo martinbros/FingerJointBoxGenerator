@@ -20,8 +20,7 @@ class Edge:
         while (2.5 * dogBoneDia > self.unit - 2.0 * self.clearence - 2.0 * self.dogBoneOffsetX):
             self.numFingers -= 1
             self.unit = self.span / (2.0 * self.numFingers + 1.0)
-        
-    
+
     def genFingerPoints(self):
         self.xList = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1] # Create a tile of finger/gap widths
         self.xList[0] = self.xList[0] + self.clearence + self.extra # For the first and last gaps, add on clearence and extra
@@ -91,7 +90,7 @@ class Edge:
         
         self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
     
-    def genHoleBone(self, dogBoneDia=0.0, dogBoneType=None, materialThick=2.0, invertHoles=False, openEnds=False):
+    def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType=None, invertHoles=False, openEnds=False):
         
         if dogBoneType == "H":
             self.dogBoneOffsetX = dogBoneDia
@@ -111,12 +110,12 @@ class Edge:
             
         self.dogBoneCheck(dogBoneDia)
         
-        yMax = materialThick / 2.0 + self.clearence
+        yMax = materialThick / 2.0 + clearence
         yVal = yMax - self.dogBoneOffsetY
         
-        self.xHole = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1] # Create a tile of finger/gap widths
-        self.xHole[0] = self.xHole[0] + self.clearence + self.extra # For the first and last gaps, add on clearence and extra
-        self.xHole[-1] = self.xHole[-1] + self.clearence + self.extra
+        self.xHole = np.tile([self.unit - 2.0 * clearence, self.unit + clearence * 2.0], self.numFingers + 1)[:-1] # Create a tile of finger/gap widths
+        self.xHole[0] = self.xHole[0] + clearence + self.extra # For the first and last gaps, add on clearence and extra
+        self.xHole[-1] = self.xHole[-1] + clearence + self.extra
         self.xHole = np.cumsum(self.xHole)  # Generate all of the x-point for the extent of the gaps
         self.xHole = np.insert(self.xHole, 0, 0.0)  # Insert the starting point
         
@@ -202,6 +201,26 @@ def plotHoles (holeArrays, color="k"):
         print(x)
         plt.plot(x, y, color=color, marker="o")
         
+def holeLocations (width, numHoles):
+    
+    if numHoles == 0:
+        return None
+    
+    elif numHoles == 1:
+        return [width / 2.0, width / 2.0]
+    
+    else:
+        bit = width / (numHoles)
+        widths = []
+    
+        for x in range(numHoles + 1):
+            if x == 0 or x == numHoles:
+                widths.append(bit / 2.0)
+            else:
+                widths.append(bit)
+        return widths
+   
+print(holeLocations(width=12.0, numHoles=4))    
         
 """
 edgeHT = Edge(3, -10.0, 0.5, 28.0, 0.0)
@@ -256,11 +275,11 @@ edgeXF.rotateAndShift([0.0, 6.0])
 #plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
 
 
-bone = Edge(100, 10.0, 0.25, 200.0, 0.0)
-bone.genFingerPointsBone(8.0, "I", True)
+bone = Edge(100, 10.0, -0.25, 200.0, 0.0)
+bone.genFingerPointsBone(8.0, "X", True)
 plt.plot(bone.xList, bone.yList, color="k", marker="o")
 
-bone.genHoleBone(dogBoneDia=10.0, dogBoneType=None, materialThick=2.0, invertHoles=False, openEnds=False)
+bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=8.0, dogBoneType="X", invertHoles=False, openEnds=False)
 #plotHoles(bone.holesPoints)
 
 plt.axis('scaled')
