@@ -29,6 +29,7 @@ north.rotateShiftElement("finger", east.cordsFinger[-1], 180.0)
 west = Edge(east.numFingers, -materialThickness, -clearence, boxInnerFootprint[1], 0.0)
 west.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 west.rotateShiftElement("finger", north.cordsFinger[-1], 270.0)
+print(west.cordsFinger[-1])
 
 plotLinePoints(south.cordsFinger, "line", color="k", marker="o")
 plotLinePoints(east.cordsFinger, "line", color="k", marker="o")
@@ -42,5 +43,5 @@ doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
 msp = doc.modelspace()
 
 layerHT = doc.layers.new(name="bot")  # Create Layer
-msp.add_lwpolyline(np.concatenate([south.cordsFinger, east.cordsFinger, north.cordsFinger, west.cordsFinger]), format="xyb", dxfattribs={'layer': layerHT.dxf.name})
+msp.add_lwpolyline(np.concatenate([south.cordsFinger[:-1], east.cordsFinger[:-1], north.cordsFinger[:-1], west.cordsFinger]), format="xyb", dxfattribs={'layer': layerHT.dxf.name})
 doc.saveas("testFile.dxf")

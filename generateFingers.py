@@ -17,7 +17,7 @@ class Edge:
 
     def dogBoneCheck(self, dogBoneDia):
 
-        while (2.5 * dogBoneDia > self.unit - 2.0 * self.clearence - 2.0 * self.dogBoneOffsetX):
+        while (2 * dogBoneDia > self.unit - 2.0 * self.clearence - 2.0 * self.boneCheck):
             self.numFingers -= 1
             self.unit = self.span / (2.0 * self.numFingers + 1.0)
 
@@ -125,25 +125,29 @@ class Edge:
 
         self.yList = np.tile([0.0, 0.0, self.fingerLength, self.fingerLength], self.numFingers + 1)[:-2]
 
-        self.fingerPoints = np.dstack((self.xList, self.yList))[0]
+        self.cordsFinger = np.dstack((self.xList, self.yList))[0]
 
     def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False, drillNum=False):
 
         if dogBoneType == "H":
             self.dogBoneOffsetX = dogBoneDia
             self.dogBoneOffsetY = 0.0
+            self.boneCheck = dogBoneDia
 
         elif dogBoneType == "I":
             self.dogBoneOffsetX = 0.0
             self.dogBoneOffsetY = dogBoneDia * (self.fingerLength / np.abs(self.fingerLength))
+            self.boneCheck = dogBoneDia
 
         elif dogBoneType == "X":
             self.dogBoneOffsetX = dogBoneDia * (1.0 / np.sqrt(2))
             self.dogBoneOffsetY = dogBoneDia * (1.0 / np.sqrt(2)) * (self.fingerLength / np.abs(self.fingerLength))
+            self.boneCheck = dogBoneDia * (1.0 / np.sqrt(2))
 
         else:
             self.dogBoneOffsetX = 0.0
             self.dogBoneOffsetY = 0.0
+            self.boneCheck = 0.0
 
         self.dogBoneCheck(dogBoneDia)
         self.topVert = self.fingerLength - self.dogBoneOffsetY
@@ -177,7 +181,8 @@ class Edge:
 
         self.xList = np.insert(self.xList, 0, 0.0)  # Insert the starting point
 
-        self.yList = np.tile([self.dogBoneOffsetY, 0.0, 0.0, self.dogBoneOffsetY, self.topVert, self.fingerLength, self.fingerLength, self.topVert], self.numFingers + 1)[:-4]
+        yElements = [self.dogBoneOffsetY, 0.0, 0.0, self.dogBoneOffsetY, self.topVert, self.fingerLength, self.fingerLength, self.topVert]
+        self.yList = np.tile(yElements, self.numFingers + 1)[:-4]
         self.yList[0] = 0.0
         self.yList[-1] = 0.0
 
@@ -305,10 +310,20 @@ bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=3.0, dogBoneType="
 bone.rotateShiftElement(element="hole", shiftOrigin=[0.0, 0.0], angle=45.0)
 plotLinePoints(bone.cordsHoles, "line", "c")
 plotLinePoints(bone.cordsHolesDrill, "scatter", "g")
+"""
+
+base = Edge(3, 2, 0.0, 28.0, 0.0)
+base.genFingerPoints()
+plotLinePoints(base.cordsFinger, "line")
+
+test = Edge(base.numFingers, base.fingerLength, 0.2, base.span, 0.0)
+test.genFingerPointsBone(dogBoneDia=0.5, dogBoneType="I", invertBone=False, drillNum=False)
+plotLinePoints(test.cordsFinger, "line", "c")
+
 
 plt.axis('scaled')
 plt.show()
-"""
+
 
 
 """
