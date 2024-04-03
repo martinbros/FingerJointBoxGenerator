@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#import pretty_errors
+import pretty_errors
 import numpy as np
 import ezdxf
 import matplotlib.pyplot as plt
@@ -21,6 +21,46 @@ class Edge:
             self.numFingers -= 1
             self.unit = self.span / (2.0 * self.numFingers + 1.0)
 
+    def holeDistances(self, width, numHoles):
+
+        if numHoles == 0:
+            return None
+
+        elif numHoles == 1:
+            return [width / 2.0, width / 2.0]
+
+        else:
+            bit = width / (numHoles)
+            widths = []
+
+            for x in range(numHoles + 1):
+                if x == 0 or x == numHoles:
+                    widths.append(bit / 2.0)
+                else:
+                    widths.append(bit)
+            return widths
+
+    def drillPoints(self, drillNum, invertDrill, widths):
+
+        drillSpace = [self.holeDistances(width, drillNum) for width in widths]
+        drillSpace = [x for xs in drillSpace for x in xs]  # Flatten list
+        drillSpace[0] = drillSpace[0] + self.extra  # add extra onto the first point
+        drillSpace = np.cumsum(drillSpace)
+        drillSpace = np.delete(drillSpace, slice(drillNum, None, drillNum + 1))
+
+        if invertDrill:
+            mask = np.tile(np.concatenate(
+                                        (np.full((1, drillNum), False)[0],
+                                        np.full((1, drillNum), True)[0])
+                                        ), self.numFingers + 1)[:-drillNum]
+        else:
+            mask = np.tile(np.concatenate(
+                                        (np.full((1, drillNum), False)[0],
+                                        np.full((1, drillNum), True)[0])
+                                        ), self.numFingers + 1)[:-drillNum]
+        
+        return drillSpace[mask]
+
     def genFingerPoints(self):
         self.xList = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1]  # Create a tile of finger/gap widths
         self.xList[0] = self.xList[0] + self.clearence + self.extra  # For the first and last gaps, add on clearence and extra
@@ -33,7 +73,7 @@ class Edge:
 
         self.fingerPoints = np.dstack((self.xList, self.yList))[0]
 
-    def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False):
+    def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False, drillNum=False, invertDrill=False):
 
         if dogBoneType == "H":
             self.dogBoneOffsetX = dogBoneDia
@@ -87,7 +127,15 @@ class Edge:
         self.yList[0] = 0.0
         self.yList[-1] = 0.0
 
-        self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
+        self.cordsFinger = np.dstack((self.xList, self.yList, self.bulgeList))[0]
+
+        if drillNum:
+            finWidths = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1]  # Create a tile of finger/gap widths
+            finWidths[0] = finWidths[0] + self.clearence  # For the first and last gaps, add on clearence, do not inlude extra
+            finWidths[-1] = finWidths[-1] + self.clearence
+
+            drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=invertDrill, widths=finWidths)  # Generate the x points
+            self.cordsDrill = np.dstack((drillXPoints, np.full((1, len(drillXPoints)), self.fingerLength / 2.0)))[0]
 
     def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType=None, invertHoles=False, openEnds=False):
 
@@ -199,28 +247,23 @@ def plotHoles(holeArrays, color="k"):
         print(x)
         plt.plot(x, y, color=color, marker="o")
 
+def plotLinePoints(points, plotType, color="k", marker="o"):
 
-def holeLocations(width, numHoles):
-
-    if numHoles == 0:
-        return None
-
-    elif numHoles == 1:
-        return [width / 2.0, width / 2.0]
-
-    else:
-        bit = width / (numHoles)
-        widths = []
-
-        for x in range(numHoles + 1):
-            if x == 0 or x == numHoles:
-                widths.append(bit / 2.0)
-            else:
-                widths.append(bit)
-        return widths
+    try:
+        x, y, b = points.T
+    except ValueError:
+        x, y = points.T
 
 
-print(holeLocations(width=12.0, numHoles=4))
+    if plotType == "line":
+        plt.plot(x, y, color=color, marker=marker)
+    elif plotType == "scatter":
+        plt.scatter(x, y, color=color, marker=marker)
+
+
+
+
+#print(holeDistances(width=12.0, numHoles=4))
 
 """
 edgeHT = Edge(3, -10.0, 0.5, 28.0, 0.0)
@@ -275,14 +318,19 @@ edgeXF.rotateAndShift([0.0, 6.0])
 #plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
 
 
-bone = Edge(100, 10.0, -0.25, 200.0, 0.0)
-bone.genFingerPointsBone(8.0, "X", True)
-plt.plot(bone.xList, bone.yList, color="k", marker="o")
+bone = Edge(numFingers=100, fingerLength=20.0, clearence=-0.25, span=200, extra=0.0)
+bone.genFingerPointsBone(8.0, "X", True, drillNum=4, invertDrill=False)
+plotLinePoints(bone.cordsFinger, "line")
+plotLinePoints(bone.cordsDrill, "scatter", "r")
+#plt.plot(bone.xList, bone.yList, color="k", marker="o")
 
 bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=8.0, dogBoneType="X", invertHoles=False, openEnds=False)
 #plotHoles(bone.holesPoints)
 
 plt.axis('scaled')
+plt.show()
+
+
 """
 doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
 msp = doc.modelspace()
