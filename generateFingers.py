@@ -146,8 +146,8 @@ class Edge:
                 bulgeTile = [1, 0, 1, 0, 0, 0]
 
                 xList = np.tile(xTile, self.numFingers + 1)[:-1]
-                xList[1] = xList[1] + self.clearence + self.extra  # For the first and last horizontal, add on clearence and extra
-                xList[-2] = xList[-2] + self.clearence + self.extra
+                xList[0] = xList[0] + self.clearence + self.extra  # For the first and last horizontal, add on clearence and extra
+                xList[-1] = xList[-1] + self.clearence + self.extra
                 xList = np.cumsum(xList)  # Generate all of the x-points from the widths
                 xList = np.repeat(xList, xRepeat)  # Repeat the x-points for the corresponding y-points
                 xList = np.insert(xList, 0, 0.0)  # Insert the starting point
