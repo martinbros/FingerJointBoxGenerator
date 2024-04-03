@@ -50,8 +50,8 @@ class Edge:
 
         if invertDrill:
             mask = np.tile(np.concatenate(
-                                        (np.full((1, drillNum), False)[0],
-                                        np.full((1, drillNum), True)[0])
+                                        (np.full((1, drillNum), True)[0],
+                                        np.full((1, drillNum), False)[0])
                                         ), self.numFingers + 1)[:-drillNum]
         else:
             mask = np.tile(np.concatenate(
@@ -137,7 +137,7 @@ class Edge:
             drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=invertDrill, widths=finWidths)  # Generate the x points
             self.cordsDrill = np.dstack((drillXPoints, np.full((1, len(drillXPoints)), self.fingerLength / 2.0)))[0]
 
-    def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType=None, invertHoles=False, openEnds=False):
+    def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType=None, invertHoles=False, openEnds=False, drillNum=False):
 
         if dogBoneType == "H":
             self.dogBoneOffsetX = dogBoneDia
@@ -169,11 +169,11 @@ class Edge:
         pairList = list(zip(self.xHole, self.xHole[1:] + self.xHole[:1]))  # create pairs from the given x points, all iteratable pairs
 
         if invertHoles:
-            pairList = pairList[::2]  # Every other pair, starting with frist
+            pairList = pairList[::2]  # Every other pair, starting with first
         else:
             pairList = pairList[1::2]  # Every other pair, starting with second
 
-        self.holesPoints = []
+        self.cordsHoles = []
         for idx, xCords in enumerate(pairList):
 
             if openEnds and idx == 0:
@@ -207,9 +207,15 @@ class Edge:
                                  [xCords[0], yVal, 0],
                                  ])
 
-            x, y, b = hole.T
-            plt.plot(x, y, color="c", marker="o")
-            self.holesPoints.append(hole)
+            self.cordsHoles.append(hole)
+
+        if drillNum:
+            finWidths = np.tile([self.unit - 2.0 * clearence, self.unit + clearence * 2.0], self.numFingers + 1)[:-1]  # Create a tile of finger/gap widths
+            finWidths[0] = finWidths[0] + clearence  # For the first and last gaps, add on clearence, do not inlude extra
+            finWidths[-1] = finWidths[-1] + clearence
+
+            drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=not invertHoles, widths=finWidths)  # Generate the x points
+            self.cordsHolesDrill = np.dstack((drillXPoints, np.full((1, len(drillXPoints)), 0.0 / 2.0)))[0]
 
     def rotateAndShift(self, shiftOrigin=[0.0, 0.0], angle=0.0, ):
 
@@ -240,96 +246,40 @@ class Edge:
             self.fingerPoints = np.dstack((self.xList, self.yList))[0]
 
 
-def plotHoles(holeArrays, color="k"):
-
-    for hole in holeArrays:
-        x, y, b = hole.T
-        print(x)
-        plt.plot(x, y, color=color, marker="o")
-
 def plotLinePoints(points, plotType, color="k", marker="o"):
 
-    try:
-        x, y, b = points.T
-    except ValueError:
-        x, y = points.T
+    if len(points[0]) <= 3:  # Check if first element is a point
+        try:
+            x, y, b = points.T
+        except ValueError:
+            x, y = points.T
 
+        if plotType == "line":
+            plt.plot(x, y, color=color, marker=marker)
+        elif plotType == "scatter":
+            plt.scatter(x, y, color=color, marker=marker)
 
-    if plotType == "line":
-        plt.plot(x, y, color=color, marker=marker)
-    elif plotType == "scatter":
-        plt.scatter(x, y, color=color, marker=marker)
+    else:  # iterate thorough array of array of points
+        for hole in points:
+            x, y, b = hole.T
 
-
-
-
-#print(holeDistances(width=12.0, numHoles=4))
-
-"""
-edgeHT = Edge(3, -10.0, 0.5, 28.0, 0.0)
-edgeHT.genFingerPointsBone(1.0, "H", True)
-edgeHT.rotateAndShift([0.0, 1.0])
-
-edgeHF = Edge(3, -10.0, 0.5, 28.0, 0.0)
-edgeHF.genFingerPointsBone(1.0, "H", False)
-edgeHF.rotateAndShift([0.0, 2.0])
-
-edgeIT = Edge(3, -10.0, 0.5, 28.0, 0.0)
-edgeIT.genFingerPointsBone(1.0, "I", True)
-edgeIT.rotateAndShift([0.0, 3.0])
-
-edgeIF = Edge(3, -10.0, 0.5, 28.0, 0.0)
-edgeIF.genFingerPointsBone(1.0, "I", False)
-edgeIF.rotateAndShift([0.0, 4.0])
-
-edgeXT = Edge(3, -10.0, 0.5, 28.0, 0.0)
-edgeXT.genFingerPointsBone(1.0, "X", True)
-edgeXT.rotateAndShift([0.0, 5.0])
-
-edgeXF = Edge(3, -10.0, 0.5, 28.0, 0.0)
-edgeXF.genFingerPointsBone(1.0, "X", False)
-edgeXF.rotateAndShift([0.0, 6.0])
-"""
-
-#edgeA = Edge(3, 10.0, -0.25, 28.0, 0.0)
-#edgeA.genFingerPoints()
-
-#edgeB = Edge(3, 10.0, 0.25, 28.0, 0.0)
-#edgeB.genHoleBone(1.0, "X", 10.0, True, True)
-
-#edgeXFF = Edge(3, -10.0, -0.25, 28.0, 0.0)
-#edgeXFF.genFingerPointsBone(1.0, "X", False)
-
-#edgeXFT = Edge(3, -10.0, +0.25, 28.0, 0.0)
-#edgeXFT.genFingerPointsBone(1.0, "X", True)
-
-#plt.plot(edgeA.xList, edgeA.yList, color="k", marker="o")
-#plt.scatter(edgeB.xHole, edgeB.yList, color="b", marker="o")
-#plt.plot(edgeXFF.xList, edgeXFF.yList, color="m", marker="o")
-#plt.plot(edgeXFT.xList, edgeXFT.yList, color="r", marker="o")
-
-#plt.plot(edgeHT.xList, edgeHT.yList, color="b", marker="o")
-#plt.plot(edgeHF.xList, edgeHF.yList, color="g", marker="o")
-
-#plt.plot(edgeIT.xList, edgeIT.yList, color="r", marker="o")
-#plt.plot(edgeIF.xList, edgeIF.yList, color="c", marker="o")
-
-#plt.plot(edgeXT.xList, edgeXT.yList, color="m", marker="o")
-#plt.plot(edgeXF.xList, edgeXF.yList, color="violet", marker="o")
+            if plotType == "line":
+                plt.plot(x, y, color=color, marker=marker)
+            elif plotType == "scatter":
+                plt.scatter(x, y, color=color, marker=marker)
 
 
 bone = Edge(numFingers=100, fingerLength=20.0, clearence=-0.25, span=200, extra=0.0)
-bone.genFingerPointsBone(8.0, "X", True, drillNum=4, invertDrill=False)
+bone.genFingerPointsBone(8.0, "X", True, drillNum=1, invertDrill=True)
 plotLinePoints(bone.cordsFinger, "line")
 plotLinePoints(bone.cordsDrill, "scatter", "r")
-#plt.plot(bone.xList, bone.yList, color="k", marker="o")
 
-bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=8.0, dogBoneType="X", invertHoles=False, openEnds=False)
-#plotHoles(bone.holesPoints)
+bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=8.0, dogBoneType="X", invertHoles=True, openEnds=False, drillNum=8)
+plotLinePoints(bone.cordsHolesDrill, "scatter", "g")
+plotLinePoints(bone.cordsHoles, "line", "c")
 
 plt.axis('scaled')
 plt.show()
-
 
 """
 doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
