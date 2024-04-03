@@ -58,8 +58,62 @@ class Edge:
                                         (np.full((1, drillNum), False)[0],
                                         np.full((1, drillNum), True)[0])
                                         ), self.numFingers + 1)[:-drillNum]
-        
+
         return drillSpace[mask]
+
+    def rotateAndShift(self, points, shiftOrigin=[0.0, 0.0], angle=0.0):
+
+        try:
+            x, y, b = points.T
+        except ValueError:
+            x, y = points.T
+
+        if angle != 0.0:
+            # convert angle to radians
+            angle_rad = np.radians(angle)
+            # create the rotation matrix
+            rotation_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad), 0],
+                                        [np.sin(angle_rad), np.cos(angle_rad), 0],
+                                        [0, 0, 1]])
+            # concatenate the matrices to create the transformation matrix
+            transformation_matrix = rotation_matrix
+            # create a matrix of column vectors from the points
+            points_matrix = np.hstack([np.dstack((x, y))[0], np.ones((len(x), 1))]).T
+
+            # apply the transformation to the points
+            transformed_points = transformation_matrix @ points_matrix
+
+            x = transformed_points[0]
+            y = transformed_points[1]
+
+        x = x + shiftOrigin[0]
+        y = y + shiftOrigin[1]
+
+        if "b" in locals():
+            return np.dstack((x, y, b))[0]
+        else:
+            return np.dstack((x, y))[0]
+
+    def rotateShiftElement(self, element, shiftOrigin=[0.0, 0.0], angle=0.0):
+        if element == "finger":
+            if hasattr(self, "cordsFinger"):
+                self.cordsFinger = self.rotateAndShift(self.cordsFinger, shiftOrigin, angle)
+
+            if hasattr(self, "cordsDrill"):
+                self.cordsDrill = self.rotateAndShift(self.cordsDrill, shiftOrigin, angle)
+
+        elif element == "hole":
+            if hasattr(self, "cordsHoles"):
+                holePoints = []
+                for hole in self.cordsHoles:
+                    holePoints.append(self.rotateAndShift(hole, shiftOrigin, angle))
+                self.cordsHoles = holePoints
+
+            if hasattr(self, "cordsHolesDrill"):
+                self.cordsHolesDrill = self.rotateAndShift(self.cordsHolesDrill, shiftOrigin, angle)
+
+        else:
+            print("Need to give element to rotate")
 
     def genFingerPoints(self):
         self.xList = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1]  # Create a tile of finger/gap widths
@@ -73,7 +127,7 @@ class Edge:
 
         self.fingerPoints = np.dstack((self.xList, self.yList))[0]
 
-    def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False, drillNum=False, invertDrill=False):
+    def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False, drillNum=False):
 
         if dogBoneType == "H":
             self.dogBoneOffsetX = dogBoneDia
@@ -134,7 +188,7 @@ class Edge:
             finWidths[0] = finWidths[0] + self.clearence  # For the first and last gaps, add on clearence, do not inlude extra
             finWidths[-1] = finWidths[-1] + self.clearence
 
-            drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=invertDrill, widths=finWidths)  # Generate the x points
+            drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=not invertBone, widths=finWidths)  # Generate the x points
             self.cordsDrill = np.dstack((drillXPoints, np.full((1, len(drillXPoints)), self.fingerLength / 2.0)))[0]
 
     def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType=None, invertHoles=False, openEnds=False, drillNum=False):
@@ -217,34 +271,6 @@ class Edge:
             drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=not invertHoles, widths=finWidths)  # Generate the x points
             self.cordsHolesDrill = np.dstack((drillXPoints, np.full((1, len(drillXPoints)), 0.0 / 2.0)))[0]
 
-    def rotateAndShift(self, shiftOrigin=[0.0, 0.0], angle=0.0, ):
-
-        if angle != 0.0:
-            # convert angle to radians
-            angle_rad = np.radians(angle)
-            # create the rotation matrix
-            rotation_matrix = np.array([[np.cos(angle_rad), -np.sin(angle_rad), 0],
-                                        [np.sin(angle_rad), np.cos(angle_rad), 0],
-                                        [0, 0, 1]])
-            # concatenate the matrices to create the transformation matrix
-            transformation_matrix = rotation_matrix
-            # create a matrix of column vectors from the points
-            points_matrix = np.hstack([np.dstack((self.xList, self.yList))[0], np.ones((len(self.xList), 1))]).T
-
-            # apply the transformation to the points
-            transformed_points = transformation_matrix @ points_matrix
-
-            self.xList = transformed_points[0]
-            self.yList = transformed_points[1]
-
-        self.xList = self.xList + shiftOrigin[0]
-        self.yList = self.yList + shiftOrigin[1]
-
-        if hasattr(self, 'bulgeList'):
-            self.fingerPoints = np.dstack((self.xList, self.yList, self.bulgeList))[0]
-        else:
-            self.fingerPoints = np.dstack((self.xList, self.yList))[0]
-
 
 def plotLinePoints(points, plotType, color="k", marker="o"):
 
@@ -268,18 +294,22 @@ def plotLinePoints(points, plotType, color="k", marker="o"):
             elif plotType == "scatter":
                 plt.scatter(x, y, color=color, marker=marker)
 
-
+"""
 bone = Edge(numFingers=100, fingerLength=20.0, clearence=-0.25, span=200, extra=0.0)
-bone.genFingerPointsBone(8.0, "X", True, drillNum=1, invertDrill=True)
+bone.genFingerPointsBone(8.0, "X", True, drillNum=1)
+bone.rotateShiftElement(element="finger", shiftOrigin=[0.0, 0.0], angle=45.0)
 plotLinePoints(bone.cordsFinger, "line")
 plotLinePoints(bone.cordsDrill, "scatter", "r")
 
-bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=8.0, dogBoneType="X", invertHoles=True, openEnds=False, drillNum=8)
-plotLinePoints(bone.cordsHolesDrill, "scatter", "g")
+bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=3.0, dogBoneType="X", invertHoles=False, openEnds=False, drillNum=8)
+bone.rotateShiftElement(element="hole", shiftOrigin=[0.0, 0.0], angle=45.0)
 plotLinePoints(bone.cordsHoles, "line", "c")
+plotLinePoints(bone.cordsHolesDrill, "scatter", "g")
 
 plt.axis('scaled')
 plt.show()
+"""
+
 
 """
 doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
