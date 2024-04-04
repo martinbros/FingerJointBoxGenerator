@@ -127,58 +127,98 @@ class Edge:
 
         self.cordsFinger = np.dstack((self.xList, self.yList))[0]
 
+    def genHXfingers(self, dogBoneDia, dogBoneType, invertBone):
+
+        if dogBoneType == "H":
+            boneX = dogBoneDia
+            boneY = 0.0
+            self.boneCheck = dogBoneDia / 2.0
+
+        elif dogBoneType == "X":
+            boneX = dogBoneDia * (1.0 / np.sqrt(2))
+            boneY = dogBoneDia * (1.0 / np.sqrt(2)) * (self.fingerLength / np.abs(self.fingerLength))
+            self.boneCheck = dogBoneDia * (1 / 2.0) - dogBoneDia * (1.0 / np.sqrt(2)) * (1 / 2.0)
+
+        self.dogBoneCheck(dogBoneDia)
+        fullBot = self.unit - 2.0 * self.clearence
+        fullTop = self.unit + 2.0 * self.clearence
+
+        if invertBone:  # Dogbone is on the bottom
+            xBetBone = fullBot - 2 * boneX
+            xTile = [boneX, xBetBone, boneX, fullTop]
+            xRepeat = np.tile([1, 1, 2, 2], self.numFingers + 1)[:-1]
+            xRepeat[-1] = 1
+            xCutdown = -1
+            xInsert = False
+            addFirst = 1
+
+            yTile = [0.0 + boneY, 0.0, 0.0, 0.0 + boneY, self.fingerLength, self.fingerLength]
+            yCutdown = -2
+
+            bulgeTile = [1, 0, 1, 0, 0, 0]
+            bList = np.tile(bulgeTile, self.numFingers + 1)[:-2]
+            # delete points at the end
+
+        else:  # Dogbone is on the top
+            xBetBone = fullTop - 2 * boneX
+            xTile = [boneX, xBetBone, boneX, fullBot]
+            xRepeat = np.tile([2, 1, 1, 2], self.numFingers + 1)[:-3]
+            xRepeat[-1] = 1
+            xCutdown = -4
+            xInsert = fullBot
+            addFirst = 0
+
+            yTile = [0.0, 0.0, self.fingerLength - boneY, self.fingerLength, self.fingerLength, self.fingerLength - boneY]
+            yCutdown = -4
+
+            bulgeTile = [0, 0, -1, 0, -1, 0]
+            bList = np.tile(bulgeTile, self.numFingers + 1)[:-4]
+
+        xList = np.tile(xTile, self.numFingers + 1)[:xCutdown]
+        if xInsert:
+            xList = np.insert(xList, 0, xInsert)
+        xList[addFirst] = xList[addFirst] + self.clearence + self.extra  # For the first and last horizontal, add on clearence and extra
+        xList[-1] = xList[-1] + self.clearence + self.extra
+        xList = np.cumsum(xList)  # Generate all of the x-points from the widths
+        xList = np.repeat(xList, xRepeat)  # Repeat the x-points for the corresponding y-points
+        xList = np.insert(xList, 0, 0.0)  # Insert the starting point
+
+        yList = np.tile(yTile, self.numFingers + 1)[:yCutdown]
+
+        yList[0] = 0.0  # first and last points always zero
+        yList[-1] = 0.0
+        bList[0] = 0  # First point never bulges
+        if invertBone:
+            xList=np.delete(xList, [1, -2])
+            yList=np.delete(yList, [1, -2])
+            bList=np.delete(bList, [1, -2])
+
+        return xList, yList, bList * (self.fingerLength / np.abs(self.fingerLength))
+
     def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False, drillNum=False):
 
         if dogBoneType == "H":
-            self.boneCheck = dogBoneDia
-            self.dogBoneCheck(dogBoneDia)
-            fullBot = self.unit - 2.0 * self.clearence
-            fullTop = self.unit + 2.0 * self.clearence
+            xList, yList, bulgeList = self.genHXfingers(dogBoneDia, dogBoneType, invertBone)
 
-            if invertBone:  # Dogbone is on the bottom
-                distBetBone = fullBot - 2.0 * dogBoneDia
-
-                xTile = [dogBoneDia, distBetBone, dogBoneDia, fullTop]
-                xRepeat = [1, 1, 2, 2]
-                xRepeat = np.tile(xRepeat, self.numFingers + 1)[:-1]
-                xRepeat[-1] = 1
-                yVals = [0.0, self.fingerLength]
-                bulgeTile = [1, 0, 1, 0, 0, 0]
-
-                xList = np.tile(xTile, self.numFingers + 1)[:-1]
-                xList[0] = xList[0] + self.clearence + self.extra  # For the first and last horizontal, add on clearence and extra
-                xList[-1] = xList[-1] + self.clearence + self.extra
-                xList = np.cumsum(xList)  # Generate all of the x-points from the widths
-                xList = np.repeat(xList, xRepeat)  # Repeat the x-points for the corresponding y-points
-                xList = np.insert(xList, 0, 0.0)  # Insert the starting point
-
-                yList = np.repeat(yVals, [4, 2])
-                yList = np.tile(yList, self.numFingers + 1)[:-2]
-
-                bulgeList = np.tile(bulgeTile, self.numFingers + 1)[:-2]
-
-                xList = np.delete(xList, [1, -2])
-                yList = np.delete(yList, [1, -2])
-                bulgeList = np.delete(bulgeList, [1, -2])
-
-            else:  # Dogbone is on the top
-                distBetBone = fullTop - 2.0 * dogBoneDia
+        elif dogBoneType == "X":
+            xList, yList, bulgeList = self.genHXfingers(dogBoneDia, dogBoneType, invertBone)
 
         elif dogBoneType == "I":
-            self.boneCheck = dogBoneDia
+            self.boneCheck = dogBoneDia / 2.0
             self.dogBoneCheck(dogBoneDia)
             fullBot = self.unit - 2.0 * self.clearence
             fullTop = self.unit + 2.0 * self.clearence
 
             if invertBone:  # Dogbone is on the bottom
-                middleY = dogBoneDia
+                middleY = dogBoneDia * (self.fingerLength / np.abs(self.fingerLength))
+                bulgeTile = [0, 1, 0, 0, 0, 1]
             else:  # Dogbone is on the top
-                middleY = self.fingerLength - dogBoneDia
+                middleY = self.fingerLength - dogBoneDia * (self.fingerLength / np.abs(self.fingerLength))
+                bulgeTile = [0, 0, -1, 0, -1, 0]
 
             xTile = [fullBot, fullTop]
             xRepeat = np.full(self.numFingers * 2 + 1, 3)
             yTile = [0.0, 0.0, middleY, self.fingerLength, self.fingerLength, middleY]
-            bulgeTile = [0, 1, 0, 0, 0, 1]
 
             xList = np.tile(xTile, self.numFingers + 1)[:-1]
             xList[0] = xList[0] + self.clearence + self.extra  # For the first and last horizontal, add on clearence and extra
@@ -189,12 +229,8 @@ class Edge:
 
             yList = np.tile(yTile, self.numFingers + 1)[:-4]
 
-            bulgeList = np.tile(bulgeTile, self.numFingers + 1)[:-4]
+            bulgeList = np.tile(bulgeTile, self.numFingers + 1)[:-4] * (self.fingerLength / np.abs(self.fingerLength))
             bulgeList[-1] = 0
-
-        elif dogBoneType == "X":
-            self.boneCheck = dogBoneDia * (1.0 / np.sqrt(2))
-            self.dogBoneCheck(dogBoneDia)
 
         else:
             print("Must specify dogbone type")
@@ -329,8 +365,8 @@ base = Edge(3, 2, 0.0, 28.0, 0.0)
 base.genFingerPoints()
 plotLinePoints(base.cordsFinger, "line")
 
-test = Edge(base.numFingers, base.fingerLength, 0.2, base.span, 5.0)
-test.genFingerPointsBone(dogBoneDia=0.5, dogBoneType="H", invertBone=True, drillNum=False)
+test = Edge(base.numFingers, base.fingerLength, 1.0, base.span, 5.0)
+test.genFingerPointsBone(dogBoneDia=0.5, dogBoneType="X", invertBone=True, drillNum=False)
 test.rotateShiftElement("finger", [-5.0, 0.0])
 plotLinePoints(test.cordsFinger, "line", "c")
 
