@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ezdxf
 
-baseIF = Edge(3, 2, 0.0, 28.0, 0.0)
+baseIF = Edge(3, -2, 0.0, 28.0, 0.0)
 baseIF.genFingerPointsBone(dogBoneDia=0.5, dogBoneType="I", invertBone=False, drillNum=False)
 baseIF.genHoleBone(baseIF.fingerLength, baseIF.clearence, dogBoneDia=0.5, dogBoneType="I", openEnds=True)
 
@@ -61,4 +61,4 @@ for layer in layers:
 			msp.add_lwpolyline(hole, format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
 
 
-doc.saveas("testGeneration.dxf")
+doc.saveas("testGenerationNeg.dxf")

@@ -253,11 +253,11 @@ class Edge:
 
         elif dogBoneType == "I":
             self.dogBoneOffsetX = 0.0
-            self.dogBoneOffsetY = dogBoneDia * (self.fingerLength / np.abs(self.fingerLength))
+            self.dogBoneOffsetY = dogBoneDia
 
         elif dogBoneType == "X":
             self.dogBoneOffsetX = dogBoneDia * (1.0 / np.sqrt(2))
-            self.dogBoneOffsetY = dogBoneDia * (1.0 / np.sqrt(2)) * (self.fingerLength / np.abs(self.fingerLength))
+            self.dogBoneOffsetY = dogBoneDia * (1.0 / np.sqrt(2))
 
         else:
             self.dogBoneOffsetX = 0.0
@@ -347,3 +347,22 @@ def plotLinePoints(points, plotType, color="k", marker="o"):
                 plt.plot(x, y, color=color, marker=marker)
             elif plotType == "scatter":
                 plt.scatter(x, y, color=color, marker=marker)
+
+
+def dxfFromDict(pointDict, fileName):
+
+    doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
+    msp = doc.modelspace()
+
+    dxfLayer = {}
+
+    for layer in pointDict:
+        dxfLayer[layer] = doc.layers.new(name=layer)  # Create Layer
+
+        if len(pointDict[layer][0]) == 3:
+            msp.add_lwpolyline(pointDict[layer], format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
+        else:
+            for hole in pointDict[layer]:
+                msp.add_lwpolyline(hole, format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
+
+    doc.saveas(fileName)

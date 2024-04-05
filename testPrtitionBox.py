@@ -21,9 +21,9 @@ clearence = 0.2 / 2.0
 ##################
 
 #wallOrigin = [-(materialThickness + clearence), -materialThickness / 2.0]
-wallOrigin = [0.0, 0.0]
+wallOrigin = [boxInnerFootprint[1] / 2.0, 0.0]
 divBot = Edge(4, -materialThickness, -clearence, boxInnerFootprint[0], materialThickness)
-divBot.genFingerPointsBone(dogBoneDia, dogBoneType, False)
+divBot.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 divBot.rotateShiftElement("finger", wallOrigin)
 
 divR = Edge(1, materialThickness + clearence, clearence, boxHeight, 0.0)
@@ -37,7 +37,7 @@ divL.genFingerPointsBone(dogBoneDia, dogBoneType, False)
 divL.rotateShiftElement("finger", stopPoint[0], 270.0)
 
 divWall = np.concatenate([divBot.cordsFinger[:-1], divR.cordsFinger, divL.cordsFinger])
-#plotLinePoints(divWall, "line", color="c", marker="o")
+plotLinePoints(divWall, "line", color="k", marker="o")
 
 ##################
 #
@@ -48,7 +48,7 @@ divWall = np.concatenate([divBot.cordsFinger[:-1], divR.cordsFinger, divL.cordsF
 wallOrigin = [0.0, 0.0]
 div1 = Edge(1, materialThickness, clearence, boxHeight, 0.0)
 div1.genFingerPointsBone(dogBoneDia, dogBoneType, invertBone=True)
-div1.genHoleBone(materialThickness, clearence, dogBoneDia, dogBoneType, openEnds=True, invertHoles=True)
+div1.genHoleBone(materialThickness, -clearence, dogBoneDia, dogBoneType, openEnds=True, invertHoles=True)
 div1.rotateShiftElement("hole", [boxInnerFootprint[1] / 2.0, 0], angle=90.0)
 
 westASpan = div1.cordsHoles[0][0][0]
@@ -71,9 +71,10 @@ wL.rotateShiftElement("finger", [0.0, boxHeight], 270.0)
 
 westWall = np.concatenate([westA.cordsFinger[:-1], div1.cordsHoles[0][:-1], westB.cordsFinger[:-1], wR.cordsFinger, div1.cordsHoles[-1], wL.cordsFinger])
 westWall[-1] = [wallOrigin[0], wallOrigin[1], 0.0]
-plotLinePoints(westWall, "line", color="c", marker="o")
+#plotLinePoints(westWall, "line", color="c", marker="o")
 
 plt.axis('scaled')
+plt.tight_layout()
 plt.show()
 
 
