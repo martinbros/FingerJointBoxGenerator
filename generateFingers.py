@@ -195,7 +195,7 @@ class Edge:
 
         return xList, yList, bList * (self.fingerLength / np.abs(self.fingerLength))
 
-    def genFingerPointsBone(self, dogBoneDia=0.0, dogBoneType=None, invertBone=False, drillNum=False):
+    def genFingerPointsBone(self, dogBoneDia, dogBoneType, invertBone, drillNum=False):
 
         if dogBoneType == "H":
             xList, yList, bulgeList = self.genHXfingers(dogBoneDia, dogBoneType, invertBone)
@@ -245,7 +245,7 @@ class Edge:
             drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=not invertBone, widths=finWidths)  # Generate the x points
             self.cordsDrill = np.dstack((drillXPoints, np.full((1, len(drillXPoints)), self.fingerLength / 2.0)))[0]
 
-    def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType=None, invertHoles=False, openEnds=False, drillNum=False):
+    def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType, openEnds=False,  invertHoles=False, drillNum=False):
 
         if dogBoneType == "H":
             self.dogBoneOffsetX = dogBoneDia
@@ -287,30 +287,30 @@ class Edge:
             if openEnds and idx == 0:
                 hole = np.array([
                                  [xCords[0], yMax, 0],
-                                 [xCords[1] - self.dogBoneOffsetX, yMax, 1],
+                                 [xCords[1] - self.dogBoneOffsetX, yMax, -1],
                                  [xCords[1], yVal, 0],
-                                 [xCords[1], -yVal, 1],
+                                 [xCords[1], -yVal, -1],
                                  [xCords[1] - self.dogBoneOffsetX, -yMax, 0],
                                  [xCords[0], -yMax, 0],
                                  ])
             elif openEnds and idx == len(pairList) - 1:
                 hole = np.array([
-                                [xCords[1], yMax, 0],
-                                [xCords[0] + self.dogBoneOffsetX, yMax, 1],
-                                [xCords[0], yVal, 0],
-                                [xCords[0], -yVal, 1],
-                                [xCords[0] + self.dogBoneOffsetX, -yMax, 0],
                                 [xCords[1], -yMax, 0],
+                                [xCords[0] + self.dogBoneOffsetX, -yMax, -1],
+                                [xCords[0], -yVal, 0],
+                                [xCords[0], yVal, -1],
+                                [xCords[0] + self.dogBoneOffsetX, +yMax, 0],
+                                [xCords[1], yMax, 0],
                                 ])
 
             else:
-                hole = np.array([[xCords[0], yVal, 1],
+                hole = np.array([[xCords[0], yVal, -1],
                                  [xCords[0] + self.dogBoneOffsetX, yMax, 0],
-                                 [xCords[1] - self.dogBoneOffsetX, yMax, 1],
+                                 [xCords[1] - self.dogBoneOffsetX, yMax, -1],
                                  [xCords[1], yVal, 0],
-                                 [xCords[1], -yVal, 1],
+                                 [xCords[1], -yVal, -1],
                                  [xCords[1] - self.dogBoneOffsetX, -yMax, 0],
-                                 [xCords[0] + self.dogBoneOffsetX, -yMax, 1],
+                                 [xCords[0] + self.dogBoneOffsetX, -yMax, -1],
                                  [xCords[0], -yVal, 0],
                                  [xCords[0], yVal, 0],
                                  ])
@@ -347,56 +347,3 @@ def plotLinePoints(points, plotType, color="k", marker="o"):
                 plt.plot(x, y, color=color, marker=marker)
             elif plotType == "scatter":
                 plt.scatter(x, y, color=color, marker=marker)
-
-"""
-bone = Edge(numFingers=100, fingerLength=20.0, clearence=-0.25, span=200, extra=0.0)
-bone.genFingerPointsBone(8.0, "X", True, drillNum=1)
-bone.rotateShiftElement(element="finger", shiftOrigin=[0.0, 0.0], angle=45.0)
-plotLinePoints(bone.cordsFinger, "line")
-plotLinePoints(bone.cordsDrill, "scatter", "r")
-
-bone.genHoleBone(materialThick=8.0, clearence=5.0, dogBoneDia=3.0, dogBoneType="X", invertHoles=False, openEnds=False, drillNum=8)
-bone.rotateShiftElement(element="hole", shiftOrigin=[0.0, 0.0], angle=45.0)
-plotLinePoints(bone.cordsHoles, "line", "c")
-plotLinePoints(bone.cordsHolesDrill, "scatter", "g")
-"""
-
-base = Edge(3, 2, 0.0, 28.0, 0.0)
-base.genFingerPoints()
-plotLinePoints(base.cordsFinger, "line")
-
-test = Edge(base.numFingers, base.fingerLength, 1.0, base.span, 5.0)
-test.genFingerPointsBone(dogBoneDia=0.5, dogBoneType="X", invertBone=True, drillNum=False)
-test.rotateShiftElement("finger", [-5.0, 0.0])
-plotLinePoints(test.cordsFinger, "line", "c")
-
-
-plt.axis('scaled')
-plt.show()
-
-
-
-"""
-doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
-msp = doc.modelspace()
-
-layerHT = doc.layers.new(name="HT")  # Create Layer
-msp.add_lwpolyline(edgeHT.fingerPoints, format="xyb", dxfattribs={'layer': layerHT.dxf.name})
-
-layerHF = doc.layers.new(name="HF")  # Create Layer
-msp.add_lwpolyline(edgeHF.fingerPoints, format="xyb", dxfattribs={'layer': layerHF.dxf.name})
-
-layerIT = doc.layers.new(name="IT")  # Create Layer
-msp.add_lwpolyline(edgeIT.fingerPoints, format="xyb", dxfattribs={'layer': layerIT.dxf.name})
-
-layerIF = doc.layers.new(name="IF")  # Create Layer
-msp.add_lwpolyline(edgeIF.fingerPoints, format="xyb", dxfattribs={'layer': layerIF.dxf.name})
-
-layerXT = doc.layers.new(name="XT")  # Create Layer
-msp.add_lwpolyline(edgeXT.fingerPoints, format="xyb", dxfattribs={'layer': layerXT.dxf.name})
-
-layerXF = doc.layers.new(name="XF")  # Create Layer
-msp.add_lwpolyline(edgeXF.fingerPoints, format="xyb", dxfattribs={'layer': layerXF.dxf.name})
-
-doc.saveas("testFile.dxf")
-"""
