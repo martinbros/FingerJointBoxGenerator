@@ -24,8 +24,8 @@ layers = {}
 
 wallOrigin = [boxInnerFootprint[1] / 2.0, 0.0]
 wallOrigin = [materialThickness + clearence, 100.0]
-wallOrigin = [clearence, boxInnerFootprint[1] / 2.0]
-divBot = Edge(4, -materialThickness, -clearence, boxInnerFootprint[0] - clearence * 2.0, 0.0)
+wallOrigin = [clearence * 2.0, boxInnerFootprint[1] / 2.0]
+divBot = Edge(4, -materialThickness, -clearence, boxInnerFootprint[0] - clearence * 4.0, 0.0)
 divBot.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 divBot.rotateShiftElement("finger", wallOrigin)
 
@@ -69,7 +69,7 @@ foot = np.concatenate([fS.cordsFinger[:-1], fE.cordsFinger[:-1], fN.cordsFinger[
 foot[-1] = [footOrigin[0], footOrigin[1], 0.0]
 
 divBot.genHoleBone(materialThickness, clearence, dogBoneDia, dogBoneType)
-divBot.rotateShiftElement("hole", [clearence, boxInnerFootprint[1] / 2.0])
+divBot.rotateShiftElement("hole", [clearence * 2, boxInnerFootprint[1] / 2.0])
 
 foot = [foot]
 for hole in divBot.cordsHoles:
@@ -116,7 +116,7 @@ wWall = Edge(fW.numFingers, materialThickness, -clearence, boxInnerFootprint[1],
 wWall.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 wWall.rotateShiftElement("finger", wallOrigin, 90.0)
 
-wWallR = Edge(1, -materialThickness, -clearence, boxHeight, 0.0)
+wWallR = Edge(1, -materialThickness, clearence, boxHeight, 0.0)
 wWallR.genFingerPointsBone(dogBoneDia, dogBoneType, False)
 wWallR.rotateShiftElement("finger", wWall.cordsFinger[-1])
 
