@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import ezdxf
 
-baseIF = Edge(3, -2, 0.0, 28.0, 0.0)
-baseIF.genFingerPointsBone(dogBoneDia=0.5, dogBoneType="I", invertBone=False, drillNum=False)
+baseIF = Edge(3, 2, 0.5, 28.0, [3.0, -1.0])
+baseIF.genFingerPointsBone(dogBoneDia=0.5, dogBoneType="I", invertBone=False, drillNum=1)
 baseIF.genHoleBone(baseIF.fingerLength, baseIF.clearence, dogBoneDia=0.5, dogBoneType="I", openEnds=True)
 
 baseIT = Edge(baseIF.numFingers, baseIF.fingerLength, baseIF.clearence, baseIF.span, baseIF.extra)
@@ -60,5 +60,8 @@ for layer in layers:
 		for hole in layers[layer]:
 			msp.add_lwpolyline(hole, format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
 
+dxfLayer["circle"] = doc.layers.new(name="circle")  # Create Layer
+for point in baseIF.cordsDrill:
+	msp.add_circle(point, 0.5, dxfattribs={'layer': dxfLayer["circle"].dxf.name})
 
-doc.saveas("testGenerationNeg.dxf")
+doc.saveas("testGenerationPos.dxf")

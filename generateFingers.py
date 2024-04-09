@@ -5,17 +5,24 @@ import numpy as np
 import ezdxf
 import matplotlib.pyplot as plt
 
+
 class Edge:
     def __init__(self, numFingers, fingerLength, clearence, span, extra):
         self.numFingers = numFingers
         self.fingerLength = fingerLength
         self.clearence = clearence
         self.span = span
-        self.extra = extra
+
+        try:
+            if len(extra) == 2:
+                self.extra = extra
+
+        except TypeError:
+            self.extra = [extra, extra]
 
         self.unit = span / (2.0 * numFingers + 1.0)
 
-    def dogBoneCheck(self, dogBoneDia):
+    def dogBoneCheck(self, dogBoneDia):  # Should implement a check when extra is negative and how that could impact the start of fingers
 
         while (2 * dogBoneDia > self.unit - 2.0 * self.clearence - 2.0 * self.boneCheck):
             self.numFingers -= 1
@@ -44,7 +51,7 @@ class Edge:
 
         drillSpace = [self.holeDistances(width, drillNum) for width in widths]
         drillSpace = [x for xs in drillSpace for x in xs]  # Flatten list
-        drillSpace[0] = drillSpace[0] + self.extra  # add extra onto the first point
+        drillSpace[0] = drillSpace[0] + self.extra[0]  # add extra onto the first point
         drillSpace = np.cumsum(drillSpace)
         drillSpace = np.delete(drillSpace, slice(drillNum, None, drillNum + 1))
 
@@ -117,8 +124,8 @@ class Edge:
 
     def genFingerPoints(self):
         self.xList = np.tile([self.unit - 2.0 * self.clearence, self.unit + self.clearence * 2.0], self.numFingers + 1)[:-1]  # Create a tile of finger/gap widths
-        self.xList[0] = self.xList[0] + self.clearence + self.extra  # For the first and last gaps, add on clearence and extra
-        self.xList[-1] = self.xList[-1] + self.clearence + self.extra
+        self.xList[0] = self.xList[0] + self.clearence + self.extra[0]  # For the first and last gaps, add on clearence and extra
+        self.xList[-1] = self.xList[-1] + self.clearence + self.extra[1]
         self.xList = np.cumsum(self.xList)  # Generate all of the x-points from the widths
         self.xList = np.repeat(self.xList, 2.0)[:-1]  # Repeat x points for the fingers
         self.xList = np.insert(self.xList, 0, 0.0)  # Insert the starting point
@@ -150,7 +157,6 @@ class Edge:
             xRepeat[-1] = 1
             xCutdown = -1
             xInsert = False
-            addFirst = 1
 
             yTile = [0.0 + boneY, 0.0, 0.0, 0.0 + boneY, self.fingerLength, self.fingerLength]
             yCutdown = -2
@@ -166,7 +172,6 @@ class Edge:
             xRepeat[-1] = 1
             xCutdown = -4
             xInsert = fullBot
-            addFirst = 0
 
             yTile = [0.0, 0.0, self.fingerLength - boneY, self.fingerLength, self.fingerLength, self.fingerLength - boneY]
             yCutdown = -4
@@ -177,8 +182,8 @@ class Edge:
         xList = np.tile(xTile, self.numFingers + 1)[:xCutdown]
         if xInsert:
             xList = np.insert(xList, 0, xInsert)
-        xList[addFirst] = xList[addFirst] + self.clearence + self.extra  # For the first and last horizontal, add on clearence and extra
-        xList[-1] = xList[-1] + self.clearence + self.extra
+        xList[0] = xList[0] + self.clearence + self.extra[0]  # For the first and last horizontal, add on clearence and extra
+        xList[-1] = xList[-1] + self.clearence + self.extra[1]
         xList = np.cumsum(xList)  # Generate all of the x-points from the widths
         xList = np.repeat(xList, xRepeat)  # Repeat the x-points for the corresponding y-points
         xList = np.insert(xList, 0, 0.0)  # Insert the starting point
@@ -221,8 +226,8 @@ class Edge:
             yTile = [0.0, 0.0, middleY, self.fingerLength, self.fingerLength, middleY]
 
             xList = np.tile(xTile, self.numFingers + 1)[:-1]
-            xList[0] = xList[0] + self.clearence + self.extra  # For the first and last horizontal, add on clearence and extra
-            xList[-1] = xList[-1] + self.clearence + self.extra
+            xList[0] = xList[0] + self.clearence + self.extra[0]  # For the first and last horizontal, add on clearence and extra
+            xList[-1] = xList[-1] + self.clearence + self.extra[1]
             xList = np.cumsum(xList)  # Generate all of the x-points from the widths
             xList = np.repeat(xList, xRepeat)[:-2]  # Repeat the x-points for the corresponding y-points
             xList = np.insert(xList, 0, 0.0)  # Insert the starting point
@@ -269,8 +274,8 @@ class Edge:
         yVal = yMax - self.dogBoneOffsetY
 
         self.xHole = np.tile([self.unit - 2.0 * clearence, self.unit + clearence * 2.0], self.numFingers + 1)[:-1]  # Create a tile of finger/gap widths
-        self.xHole[0] = self.xHole[0] + clearence + self.extra  # For the first and last gaps, add on clearence and extra
-        self.xHole[-1] = self.xHole[-1] + clearence + self.extra
+        self.xHole[0] = self.xHole[0] + clearence + self.extra[0]  # For the first and last gaps, add on clearence and extra
+        self.xHole[-1] = self.xHole[-1] + clearence + self.extra[1]
         self.xHole = np.cumsum(self.xHole)  # Generate all of the x-point for the extent of the gaps
         self.xHole = np.insert(self.xHole, 0, 0.0)  # Insert the starting point
 
