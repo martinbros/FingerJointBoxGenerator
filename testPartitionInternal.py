@@ -68,7 +68,7 @@ fW.rotateShiftElement("finger", fN.cordsFinger[-1], 270.0)
 foot = np.concatenate([fS.cordsFinger[:-1], fE.cordsFinger[:-1], fN.cordsFinger[:-1], fW.cordsFinger])
 foot[-1] = [footOrigin[0], footOrigin[1], 0.0]
 
-divBot.genHoleBone(materialThickness, clearence, dogBoneDia, dogBoneType)
+divBot.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, dogBoneType)
 divBot.rotateShiftElement("hole", [clearence * 2, boxInnerFootprint[1] / 2.0])
 
 foot = [foot]
