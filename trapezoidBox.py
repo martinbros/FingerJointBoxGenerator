@@ -7,7 +7,7 @@ import numpy as np
 import ezdxf
 
 boxInnerFootprint = [600.0, 175.0]
-trapBase = 600.0
+trapBase = 175.0
 boxHeight = 200.0
 
 materialThickness = 10.0
@@ -28,7 +28,9 @@ smAngFingLen = materialThickness / np.sin(angle)  # Smaller angle, finger length
 lgAngFingLen = materialThickness * (np.tan(np.pi / 2.0 - angle) + 1 / np.cos(np.pi / 2.0 - angle))  # Larger angle, finger Length
 
 smAngOff = materialThickness / np.tan(angle)  # Smaller angle, backoff from vertex
-lgAngOff = materialThickness / np.cos(np.pi / 2.0 - angle)  # Larger angle, backoff from vertex
+lgAngOff = materialThickness / np.cos(np.pi / 2.0 - angle)  # Larger angle, backoff from vertex THIS ONE SHOULD BE 0 when angle is 90deg
+
+print("%s : %s : %s : %s" % (smAngFingLen, lgAngFingLen, smAngOff, lgAngOff))
 
 layers = {}
 
@@ -132,14 +134,14 @@ bEdge.rotateShiftElement("hole", holeOrigin)
 
 #angled wall mate surface
 baseEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, dogBoneType)
-baseEdge.rotateShiftElement("hole", [trapBase - materialThickness / 2.0, materialThickness / 2.0], 90.0)
+baseEdge.rotateShiftElement("hole", [trapBase - materialThickness / 2.0,  holeOrigin[1] + materialThickness / 2.0], 90.0)
 
 for hole in baseEdge.cordsHoles:
 	bEdge.cordsHoles.append(hole)
 
 mountHoles = bEdge.cordsHoles
 
-bEdge.rotateShiftElement("hole", [bEdge.span, baseEdge.span - materialThickness], 180.0)
+bEdge.rotateShiftElement("hole", [bEdge.span, baseEdge.span + materialThickness * 2.0], 180.0)
 
 for hole in bEdge.cordsHoles:
 	mountHoles.append(hole)
@@ -156,7 +158,7 @@ layers["base"] = mountHoles
 
 plotLinePoints(mountHoles, "line", color="r")
 
-dxfFromDict(layers, "trapezoidBox.dxf")
+dxfFromDict(layers, "trapezoidRecBox.dxf")
 plt.axis('scaled')
 plt.tight_layout()
 plt.show()
