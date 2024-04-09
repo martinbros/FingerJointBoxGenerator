@@ -22,9 +22,11 @@ class Edge:
 
         self.unit = span / (2.0 * numFingers + 1.0)
 
-    def dogBoneCheck(self, dogBoneDia):  # Should implement a check when extra is negative and how that could impact the start of fingers
+    def dogBoneCheck(self, dogBoneDia):  # Roughly implemented to check extra
 
-        while (2 * dogBoneDia > self.unit - 2.0 * self.clearence - 2.0 * self.boneCheck):
+        extraCheck = min(self.extra)
+
+        while (not(2 * dogBoneDia < self.unit - 2.0 * self.clearence - 2.0 * self.boneCheck) or not(2 * dogBoneDia < self.unit - self.clearence + extraCheck)):
             self.numFingers -= 1
             self.unit = self.span / (2.0 * self.numFingers + 1.0)
 
