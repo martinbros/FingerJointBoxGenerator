@@ -265,7 +265,7 @@ class Edge:
 
         self.dogBoneCheck(dogBoneDia)
 
-        yMax = materialThick / 2.0 + clearence
+        yMax = np.abs(materialThick) / 2.0 + clearence
         yVal = yMax - self.dogBoneOffsetY
 
         self.xHole = np.tile([self.unit - 2.0 * clearence, self.unit + clearence * 2.0], self.numFingers + 1)[:-1]  # Create a tile of finger/gap widths
