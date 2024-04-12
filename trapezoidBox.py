@@ -7,7 +7,7 @@ import numpy as np
 import ezdxf
 
 boxInnerFootprint = [600.0, 175.0]
-trapBase = 175.0
+trapBase = 600.0
 boxHeight = 200.0
 
 materialThickness = 10.0
@@ -129,12 +129,16 @@ plotLinePoints(angledWall, "line", color="k", marker="o")
 holeOrigin = [0.0, materialThickness / 2.0]
 
 #trapezoid wall mate surface
-bEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, dogBoneType)
+bEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, "H")
 bEdge.rotateShiftElement("hole", holeOrigin)
 
+holeWidth = materialThickness * np.cos(np.pi / 2.0 - angle) + np.abs(topEdge.fingerLength) * np.cos(angle) + clearence * 2.0
+holeOffsetFromEdge = materialThickness / np.sin(angle)
+holeCenterLine = trapBase - holeOffsetFromEdge + (holeWidth / 2.0)
+
 #angled wall mate surface
-baseEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, dogBoneType)
-baseEdge.rotateShiftElement("hole", [trapBase - materialThickness / 2.0,  holeOrigin[1] + materialThickness / 2.0], 90.0)
+baseEdge.genHoleBone(holeWidth, clearence, dogBoneDia, "H")
+baseEdge.rotateShiftElement("hole", [holeCenterLine,  holeOrigin[1] + materialThickness / 2.0], 90.0)
 
 for hole in baseEdge.cordsHoles:
 	bEdge.cordsHoles.append(hole)
@@ -158,7 +162,7 @@ layers["base"] = mountHoles
 
 plotLinePoints(mountHoles, "line", color="r")
 
-dxfFromDict(layers, "trapezoidRecBox.dxf")
+dxfFromDict(layers, "trapezoidBoxBase.dxf")
 plt.axis('scaled')
 plt.tight_layout()
 plt.show()
