@@ -356,13 +356,14 @@ def plotLinePoints(points, plotType, color="k", marker="o"):
                 plt.scatter(x, y, color=color, marker=marker)
 
 
-def dxfFromDict(pointDict, fileName):
+def dxfFromDict(pointDict, fileName, drillDict={}):
 
     doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
     msp = doc.modelspace()
 
     dxfLayer = {}
 
+    # Plot Fingers
     for layer in pointDict:
         dxfLayer[layer] = doc.layers.new(name=layer)  # Create Layer
 
@@ -371,5 +372,12 @@ def dxfFromDict(pointDict, fileName):
         else:
             for hole in pointDict[layer]:
                 msp.add_lwpolyline(hole, format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
+
+    # Plot Drill Points
+    for layer in drillDict:
+        for point in drillDict[layer]:
+            print(point[:2])
+            print(point[2])
+            msp.add_circle(point[:2], point[2], dxfattribs={'layer': dxfLayer[layer].dxf.name})
 
     doc.saveas(fileName)

@@ -9,12 +9,20 @@ import ezdxf
 boxInnerFootprint = [600.0, 175.0]
 trapBase = 600.0
 boxHeight = 200.0
+bearingRad = 250.0
 
 materialThickness = 10.0
 dogBoneDia = 3.175 + 0.5
 dogBoneType = "I"
 clearence = 0.2 / 2.0
 clearence = 0.0
+
+# Dimensions of the rotation stopping arm
+innerRad = bearingRad - 30.0
+armBase = 50.0
+armEnd = 30.0
+armLength = 50.0
+armAngle = 45.0
 
 if trapBase - boxInnerFootprint[1] != 0.0:
 	angle = np.arctan(boxHeight / ((trapBase - boxInnerFootprint[1]) / 2.0))
@@ -29,8 +37,6 @@ lgAngFingLen = materialThickness * (np.tan(np.pi / 2.0 - angle) + 1 / np.cos(np.
 
 smAngOff = materialThickness / np.tan(angle)  # Smaller angle, backoff from vertex
 lgAngOff = materialThickness / np.cos(np.pi / 2.0 - angle)  # Larger angle, backoff from vertex THIS ONE SHOULD BE 0 when angle is 90deg
-
-print("%s : %s : %s : %s" % (smAngFingLen, lgAngFingLen, smAngOff, lgAngOff))
 
 layers = {}
 
@@ -119,26 +125,25 @@ angledWall = np.concatenate([angleEdge.cordsFinger[:-1], baseEdge.cordsFinger[:-
 angledWall[-1] = [wallOrigin[0], wallOrigin[1], 0.0]
 
 layers["angled"] = angledWall 
-plotLinePoints(angledWall, "line", color="k", marker="o")
+#plotLinePoints(angledWall, "line", color="k", marker="o")
 
 ##################
 #
 #  Generate Mount Surface
 #
 ##################
-holeOrigin = [0.0, materialThickness / 2.0]
 
-#trapezoid wall mate surface
+# trapezoid wall mate holes
 bEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, "H")
-bEdge.rotateShiftElement("hole", holeOrigin)
+bEdge.rotateShiftElement("hole", [0.0, materialThickness / 2.0])
 
 holeWidth = materialThickness * np.cos(np.pi / 2.0 - angle) + np.abs(topEdge.fingerLength) * np.cos(angle) + clearence * 2.0
 holeOffsetFromEdge = materialThickness / np.sin(angle)
 holeCenterLine = trapBase - holeOffsetFromEdge + (holeWidth / 2.0)
 
-#angled wall mate surface
+# angled wall mate holes
 baseEdge.genHoleBone(holeWidth, clearence, dogBoneDia, "H")
-baseEdge.rotateShiftElement("hole", [holeCenterLine,  holeOrigin[1] + materialThickness / 2.0], 90.0)
+baseEdge.rotateShiftElement("hole", [holeCenterLine, materialThickness], 90.0)
 
 for hole in baseEdge.cordsHoles:
 	bEdge.cordsHoles.append(hole)
@@ -150,6 +155,7 @@ bEdge.rotateShiftElement("hole", [bEdge.span, baseEdge.span + materialThickness 
 for hole in bEdge.cordsHoles:
 	mountHoles.append(hole)
 
+# base outline
 outline = np.array([[-materialThickness * 2.0, -materialThickness * 2.0, 0],
 			[trapBase + materialThickness * 2.0, -materialThickness * 2.0, 0],
 			[trapBase + materialThickness * 2.0, boxInnerFootprint[0] + materialThickness * 2.0, 0],
@@ -158,11 +164,43 @@ outline = np.array([[-materialThickness * 2.0, -materialThickness * 2.0, 0],
 
 mountHoles.append(outline)
 
-layers["base"] = mountHoles
+# Inner Arm outline
+yCord = np.sqrt(np.square(innerRad) - (np.square(armBase / 2.0)))
+bulgeVal = (armBase / 2.0) / (innerRad - yCord)
 
+circleArmPoints = np.array([[-armBase / 2.0, -yCord, -bulgeVal],
+					[armBase / 2.0, -yCord, 0],
+					[armEnd / 2.0, -yCord + armLength, 0],
+					[-armEnd / 2.0, -yCord + armLength, 0],
+					[-armBase / 2.0, -yCord, 0]])
+
+shift = Edge(numFingers=1, fingerLength=1, clearence=1, span=1, extra=0)
+circleArmPoints = shift.rotateAndShift(circleArmPoints, shiftOrigin=[trapBase / 2.0, boxInnerFootprint[0] / 2.0], angle=armAngle)
+
+mountHoles.append(circleArmPoints)
+
+layers["base"] = mountHoles
 plotLinePoints(mountHoles, "line", color="r")
 
-dxfFromDict(layers, "trapezoidBoxBase.dxf")
+##################
+#
+#  Generate Foot
+#
+##################
+
+layers["foot"] = outline
+
+drillPoints = {}
+drillPoints["foot"] = [[trapBase / 2.0, boxInnerFootprint[0] / 2.0, bearingRad], [trapBase / 2.0, boxInnerFootprint[0] / 2.0, 30.0]]
+drillPoints["base"] = [[trapBase / 2.0, boxInnerFootprint[0] / 2.0, bearingRad]]
+
+##################
+#
+#  Generate DXF
+#
+##################
+
+dxfFromDict(layers, "trapezoidBoxBase.dxf", drillPoints)
 plt.axis('scaled')
 plt.tight_layout()
 plt.show()
