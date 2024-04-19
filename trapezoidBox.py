@@ -9,16 +9,23 @@ import ezdxf
 boxInnerFootprint = [600.0, 175.0]
 trapBase = 600.0
 boxHeight = 200.0
-bearingRad = 250.0
 
 materialThickness = 10.0
+materialThicknessBase = 19.0
 dogBoneDia = 3.175 + 0.5
 dogBoneType = "I"
 clearence = 0.2 / 2.0
-clearence = 0.0
+#clearence = 0.0
+
+# Dimensions for the bearing race
+marbleDia = 10.0
+marbleBuffer = 4.0  # double this value is added to marbleDia to make race drill diameter
+marbleNum = 16
+raceRad = 250.0
+raceBuffer = 10.0  # This value is distance of material added to inside and outside of race drill hole
 
 # Dimensions of the rotation stopping arm
-innerRad = bearingRad - 30.0
+innerRad = raceRad - 30.0
 armBase = 50.0
 armEnd = 30.0
 armLength = 50.0
@@ -138,7 +145,7 @@ bEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, "H
 bEdge.rotateShiftElement("hole", [0.0, materialThickness / 2.0])
 
 holeWidth = materialThickness * np.cos(np.pi / 2.0 - angle) + np.abs(topEdge.fingerLength) * np.cos(angle) + clearence * 2.0
-holeOffsetFromEdge = materialThickness / np.sin(angle)
+holeOffsetFromEdge = materialThickness / np.sin(angle) + clearence
 holeCenterLine = trapBase - holeOffsetFromEdge + (holeWidth / 2.0)
 
 # angled wall mate holes
@@ -180,7 +187,7 @@ circleArmPoints = shift.rotateAndShift(circleArmPoints, shiftOrigin=[trapBase / 
 mountHoles.append(circleArmPoints)
 
 layers["base"] = mountHoles
-plotLinePoints(mountHoles, "line", color="r")
+#plotLinePoints(mountHoles, "line", color="r")
 
 ##################
 #
@@ -191,8 +198,32 @@ plotLinePoints(mountHoles, "line", color="r")
 layers["foot"] = outline
 
 drillPoints = {}
-drillPoints["foot"] = [[trapBase / 2.0, boxInnerFootprint[0] / 2.0, bearingRad], [trapBase / 2.0, boxInnerFootprint[0] / 2.0, 30.0]]
-drillPoints["base"] = [[trapBase / 2.0, boxInnerFootprint[0] / 2.0, bearingRad]]
+drillPoints["foot"] = np.array([[trapBase / 2.0, boxInnerFootprint[0] / 2.0, raceRad], [trapBase / 2.0, boxInnerFootprint[0] / 2.0, 30.0]])
+drillPoints["base"] = np.array([[trapBase / 2.0, boxInnerFootprint[0] / 2.0, raceRad]])
+
+#plotLinePoints(outline, "line", color="b")
+
+##################
+#
+#  Generate race
+#
+##################
+
+bearingHoles = []
+bearingAngle = (2 * np.pi) / marbleNum
+
+for num in range(marbleNum):
+	xPoint = raceRad * np.cos(bearingAngle * num)
+	yPoint = raceRad * np.sin(bearingAngle * num)
+	bearingHoles.append([xPoint, yPoint, marbleDia / 2.0 + marbleBuffer])
+
+bearingHoles.append([0, 0, raceRad + (marbleDia / 2.0 + marbleBuffer + raceBuffer)])
+bearingHoles.append([0, 0, raceRad - (marbleDia / 2.0 + marbleBuffer + raceBuffer)])
+bearingHoles = shift.rotateAndShift(np.array(bearingHoles), shiftOrigin=[trapBase / 2.0, boxInnerFootprint[0] / 2.0])
+drillPoints["race"] = bearingHoles
+
+plotLinePoints(np.array(bearingHoles), "circle", color="k")
+
 
 ##################
 #
@@ -200,7 +231,7 @@ drillPoints["base"] = [[trapBase / 2.0, boxInnerFootprint[0] / 2.0, bearingRad]]
 #
 ##################
 
-dxfFromDict(layers, "trapezoidBoxBase.dxf", drillPoints)
+dxfFromDict(layers, "trapezoidBoxBaseClear.dxf", drillPoints)
 plt.axis('scaled')
 plt.tight_layout()
 plt.show()

@@ -345,6 +345,13 @@ def plotLinePoints(points, plotType, color="k", marker="o"):
             plt.plot(x, y, color=color, marker=marker)
         elif plotType == "scatter":
             plt.scatter(x, y, color=color, marker=marker)
+        elif plotType == "circle":
+            circleDict = {}
+            for idx, circle in enumerate(points):
+                circleDict[idx] = plt.Circle(circle[:2], circle[2], color=color, fill=False)
+            ax = plt.gca()
+            for circle in circleDict:
+                ax.add_patch(circleDict[circle])
 
     else:  # iterate thorough array of array of points
         for hole in points:
@@ -362,22 +369,21 @@ def dxfFromDict(pointDict, fileName, drillDict={}):
     msp = doc.modelspace()
 
     dxfLayer = {}
+    layersList = list(set(list(pointDict) + list(drillDict)))
 
     # Plot Fingers
-    for layer in pointDict:
+    for layer in layersList:
         dxfLayer[layer] = doc.layers.new(name=layer)  # Create Layer
 
-        if len(pointDict[layer][0]) == 3:
-            msp.add_lwpolyline(pointDict[layer], format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
-        else:
-            for hole in pointDict[layer]:
-                msp.add_lwpolyline(hole, format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
+        if layer in list(pointDict):
+            if len(pointDict[layer][0]) == 3:
+                msp.add_lwpolyline(pointDict[layer], format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
+            else:
+                for hole in pointDict[layer]:
+                    msp.add_lwpolyline(hole, format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
 
-    # Plot Drill Points
-    for layer in drillDict:
-        for point in drillDict[layer]:
-            print(point[:2])
-            print(point[2])
-            msp.add_circle(point[:2], point[2], dxfattribs={'layer': dxfLayer[layer].dxf.name})
+        if layer in list(drillDict):
+            for point in drillDict[layer]:
+                msp.add_circle(point[:2], point[2], dxfattribs={'layer': dxfLayer[layer].dxf.name})
 
     doc.saveas(fileName)
