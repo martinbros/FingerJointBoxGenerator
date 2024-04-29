@@ -11,11 +11,11 @@ trapBase = 600.0
 boxHeight = 200.0
 
 materialThickness = 10.0
-materialThicknessBase = 19.0
+materialThicknessBase = 20.0
 dogBoneDia = 3.175 + 0.5
 dogBoneType = "I"
-clearence = 0.2 / 2.0
-#clearence = 0.0
+#clearence = 0.2 / 2.0
+clearence = 0.0
 
 # Dimensions for the bearing race
 marbleDia = 10.0
@@ -39,7 +39,7 @@ else:
 angleDeg = angle * (180.0 / np.pi)
 hypotSpan = boxHeight / np.sin(angle)
 
-smAngFingLen = materialThickness / np.sin(angle)  # Smaller angle, finger length
+smAngFingLen = materialThicknessBase / np.sin(angle)  # Smaller angle, finger length
 lgAngFingLen = materialThickness * (np.tan(np.pi / 2.0 - angle) + 1 / np.cos(np.pi / 2.0 - angle))  # Larger angle, finger Length
 
 smAngOff = materialThickness / np.tan(angle)  # Smaller angle, backoff from vertex
@@ -62,7 +62,7 @@ rEdge = Edge(2, -materialThickness, clearence, hypotSpan, 0.0)
 rEdge.genFingerPointsBone(dogBoneDia, dogBoneType, False)
 rEdge.rotateShiftElement("finger", tEdge.cordsFinger[-1], -angleDeg)
 
-bEdge = Edge(4, materialThickness, -clearence, trapBase, 0.0)
+bEdge = Edge(4, materialThicknessBase, -clearence, trapBase, 0.0)
 bEdge.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 bEdge.rotateShiftElement("finger", rEdge.cordsFinger[-1], 180.0)
 
@@ -163,11 +163,15 @@ for hole in bEdge.cordsHoles:
 	mountHoles.append(hole)
 
 # base outline
-outline = np.array([[-materialThickness * 2.0, -materialThickness * 2.0, 0],
-			[trapBase + materialThickness * 2.0, -materialThickness * 2.0, 0],
-			[trapBase + materialThickness * 2.0, boxInnerFootprint[0] + materialThickness * 2.0, 0],
-			[-materialThickness * 2.0, boxInnerFootprint[0] + materialThickness * 2.0, 0],
-			[-materialThickness * 2.0, -materialThickness * 2.0, 0]])
+baseSideLength = trapBase + 2.0 * (holeWidth - holeOffsetFromEdge)
+baseOffsetX = holeWidth - holeOffsetFromEdge
+outlineBuffer = materialThickness * 1.5
+
+outline = np.array([[-baseOffsetX - outlineBuffer, -outlineBuffer, 0],
+					[-baseOffsetX + baseSideLength + outlineBuffer, -outlineBuffer, 0],
+					[-baseOffsetX + baseSideLength + outlineBuffer, boxInnerFootprint[0] + outlineBuffer, 0],
+					[-baseOffsetX - outlineBuffer, boxInnerFootprint[0] + outlineBuffer, 0],
+					[-baseOffsetX - outlineBuffer, -outlineBuffer, 0]])
 
 mountHoles.append(outline)
 
@@ -187,7 +191,7 @@ circleArmPoints = shift.rotateAndShift(circleArmPoints, shiftOrigin=[trapBase / 
 mountHoles.append(circleArmPoints)
 
 layers["base"] = mountHoles
-#plotLinePoints(mountHoles, "line", color="r")
+plotLinePoints(mountHoles, "line", color="r")
 
 ##################
 #
@@ -231,7 +235,7 @@ plotLinePoints(np.array(bearingHoles), "circle", color="k")
 #
 ##################
 
-dxfFromDict(layers, "trapezoidBoxBaseClear.dxf", drillPoints)
+dxfFromDict(layers, "trapezoidBoxBaseThick.dxf", drillPoints)
 plt.axis('scaled')
 plt.tight_layout()
 plt.show()
