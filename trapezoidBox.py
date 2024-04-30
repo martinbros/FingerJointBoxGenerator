@@ -9,17 +9,29 @@ import os
 import shutil
 import sys
 
-boxInnerFootprint = [600.0, 175.0]
-trapBase = 600.0
-boxHeight = 200.0
-drillRad = 1.0
-
 materialThickness = 10.0
 materialThicknessBase = 20.0
+
 dogBoneDia = 3.175 + 0.5
 dogBoneType = "I"
 clearence = 0.2 / 2.0
 #clearence = 0.0
+
+powerCableHoleDia = 40.0
+
+# Extra distance for hold downs
+tnutDia = 18.8  # Diameter of the wings
+tnutOffset = 13.0  # From edge of wing to edge of hole
+tnutDrillDia = 8.0
+holdDownBuffer = 10.0
+holdDownExtra = materialThickness + tnutOffset + holdDownBuffer
+
+# Dimensions for overall stand form
+lugCompLength = 600.0 + (holdDownExtra * 2.0)
+boxInnerFootprint = [lugCompLength, 175.0]
+trapBase = 600.0
+boxHeight = 200.0
+drillRad = 1.0
 
 # Dimensions for the bearing race
 marbleDia = 10.0
@@ -98,9 +110,12 @@ drillRadList = np.full([drillList.shape[0], 1], drillRad)
 drillPoints = {}
 drillPoints["drill"] = np.append(drillList, drillRadList, axis=1)
 
+drillPoints["power"] = np.array([[0.0, boxHeight / -2.0, powerCableHoleDia / 2.0]])
+
 dxfFromDict(layers, saveFolder + "\\trapezoid.dxf", drillPoints)
 #plotLinePoints(layers["trap"], "line", color="k", marker="o")
 #plotLinePoints(drillPoints["drill"], "circle", color="k")
+#plotLinePoints(drillPoints["power"], "circle", color="r")
 
 ##################
 #
@@ -136,9 +151,14 @@ drillRadList = np.full([drillList.shape[0], 1], drillRad)
 drillPoints = {}
 drillPoints["drill"] = np.append(drillList, drillRadList, axis=1)
 
+# Holddown Drill Points
+drillPoints["hold"] = np.array([[lgAngFingLen + tEdge.span / 2.0, holdDownBuffer / 2.0 + tnutDia / 2.0, tnutDrillDia / 2.0],
+								[lgAngFingLen + tEdge.span / 2.0, lugCompLength - materialThickness * 2.0 - (holdDownBuffer / 2.0 + tnutDia / 2.0), tnutDrillDia / 2.0]])
+
 dxfFromDict(layers, saveFolder + "\\top.dxf", drillPoints)
 #plotLinePoints(platWall, "line", color="c", marker="o")
 #plotLinePoints(drillPoints["drill"], "circle", color="k")
+#plotLinePoints(drillPoints["hold"], "circle", color="r")
 
 ##################
 #
@@ -246,8 +266,8 @@ drillRadList = np.full([drillList.shape[0], 1], drillRad)
 drillPoints["drill"] = np.append(drillList, drillRadList, axis=1)
 
 dxfFromDict(layers, saveFolder + "\\base.dxf", drillPoints)
-plotLinePoints(mountHoles, "line", color="r")
-plotLinePoints(drillPoints["drill"], "circle", color="k")
+#plotLinePoints(mountHoles, "line", color="r")
+#plotLinePoints(drillPoints["drill"], "circle", color="k")
 
 ##################
 #
@@ -258,7 +278,7 @@ layers = {}
 layers["foot"] = outline
 
 drillPoints = {}
-drillPoints["foot"] = np.array([[trapBase / 2.0, boxInnerFootprint[0] / 2.0, 30.0]])
+drillPoints["foot"] = np.array([[trapBase / 2.0, boxInnerFootprint[0] / 2.0, powerCableHoleDia / 2.0]])
 drillPoints["race"] = np.array([[trapBase / 2.0, boxInnerFootprint[0] / 2.0, raceRad]])
 
 dxfFromDict(layers, saveFolder + "\\foot.dxf", drillPoints)
@@ -287,6 +307,36 @@ drillPoints["race"] = bearingHoles
 
 dxfFromDict({}, saveFolder + "\\cage.dxf", drillPoints)
 #plotLinePoints(np.array(bearingHoles), "circle", color="k")
+
+##################
+#
+#  Clearence Test
+#
+##################
+
+testWidth = 50.0
+
+finA = Edge(2, -materialThickness, clearence, 100.0, 0.0)
+finA.genFingerPointsBone(dogBoneDia, dogBoneType, False)
+finA.cordsFinger = np.concatenate([finA.cordsFinger, np.array([[100.0, -testWidth, 0], [0.0, -testWidth, 0], [0.0, 0.0, 0]])])
+
+finB = Edge(finA.numFingers, -materialThickness, -clearence, finA.span, 0.0)
+finB.genFingerPointsBone(dogBoneDia, dogBoneType, True)
+finB.rotateShiftElement("finger", [0.0, clearence * 2.0])
+finB.cordsFinger = np.concatenate([finB.cordsFinger, np.array([[100.0, clearence * 2.0 + testWidth, 0], [0.0, clearence * 2.0 + testWidth, 0], [0.0, clearence * 2.0, 0]])])
+
+finB.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, dogBoneType)
+finB.rotateShiftElement("hole", [0.0, ((testWidth - materialThickness) / -2.0) + -materialThickness])
+
+finB.cordsHoles.append(finA.cordsFinger)
+
+layer = {}
+layer["layerA"] = finB.cordsHoles
+layer["layerB"] = finB.cordsFinger
+dxfFromDict(layer, saveFolder + "\\clearenceTest.dxf")
+plotLinePoints(layer["layerA"], "line", color="r")
+plotLinePoints(layer["layerB"], "line", color="b")
+plotLinePoints(finB.cordsHoles, "line", color="c")
 
 
 ##################
