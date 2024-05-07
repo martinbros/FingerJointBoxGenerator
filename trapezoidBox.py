@@ -9,10 +9,10 @@ import os
 import shutil
 import sys
 
-materialThickness = 10.0
-materialThicknessBase = 20.0
+materialThickness = 
+materialThicknessBase = 
 
-dogBoneDia = (1.0 / 8.0) * 25.4 + 0.5
+dogBoneDia = () * 25.4 + 0.5
 dogBoneType = "I"
 clearence = 0.2 / 2.0
 #clearence = 0.0
