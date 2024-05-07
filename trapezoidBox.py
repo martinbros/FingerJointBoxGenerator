@@ -206,7 +206,7 @@ dxfFromDict(layers, saveFolder + "\\angled.dxf", drillPoints)
 ##################
 
 # trapezoid wall mate holes
-bEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, "H", drillNum=1)
+bEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, "I", drillNum=1)
 bEdge.rotateShiftElement("hole", [0.0, materialThickness / 2.0])
 drillList = np.array(bEdge.cordsHolesDrill)
 
@@ -215,7 +215,7 @@ holeOffsetFromEdge = materialThickness / np.sin(angle) + clearence
 holeCenterLine = trapBase - holeOffsetFromEdge + (holeWidth / 2.0)
 
 # angled wall mate holes
-baseEdge.genHoleBone(holeWidth, clearence, dogBoneDia, "H", drillNum=1)
+baseEdge.genHoleBone(holeWidth, clearence, dogBoneDia, "X", drillNum=1)
 baseEdge.rotateShiftElement("hole", [holeCenterLine, materialThickness], 90.0)
 
 for hole in baseEdge.cordsHoles:
