@@ -12,7 +12,7 @@ import sys
 materialThickness = 10.0
 materialThicknessBase = 20.0
 
-dogBoneDia = 3.175 + 0.5
+dogBoneDia = (1.0 / 8.0) * 25.4 + 0.5
 dogBoneType = "I"
 clearence = 0.2 / 2.0
 #clearence = 0.0
@@ -29,19 +29,20 @@ holdDownExtra = materialThickness + tnutOffset + holdDownBuffer
 # Dimensions for overall stand form
 lugCompLength = 600.0 + (holdDownExtra * 2.0)
 boxInnerFootprint = [lugCompLength, 175.0]
-trapBase = 600.0
+trapBase = lugCompLength
 boxHeight = 200.0
 drillRad = 1.0
 
-# Dimensions for the bearing race
-marbleDia = 10.0
-marbleBuffer = 4.0  # double this value is added to marbleDia to make race drill diameter
-marbleNum = 16
-raceRad = 250.0
+# Dimensions for the bearing cage
+marbleDia = 1.0 * 25.6
+marbleBuffer = 2.0  # double this value is added to marbleDia to make race drill diameter
+marbleNum = 10
+raceRad = (lugCompLength / 2.0) - marbleDia * 2.0
+print(raceRad * 2.0)
 raceBuffer = 10.0  # This value is distance of material added to inside and outside of race drill hole
 
 # Dimensions of the rotation stopping arm
-innerRad = raceRad - 30.0
+innerRad = raceRad - marbleDia / 2.0 - marbleBuffer - raceBuffer - 10.0
 armBase = 50.0
 armEnd = 30.0
 armLength = 50.0
@@ -266,8 +267,9 @@ drillRadList = np.full([drillList.shape[0], 1], drillRad)
 drillPoints["drill"] = np.append(drillList, drillRadList, axis=1)
 
 dxfFromDict(layers, saveFolder + "\\base.dxf", drillPoints)
-#plotLinePoints(mountHoles, "line", color="r")
-#plotLinePoints(drillPoints["drill"], "circle", color="k")
+plotLinePoints(mountHoles, "line", color="r")
+plotLinePoints(drillPoints["drill"], "circle", color="k")
+plotLinePoints(drillPoints["race"], "circle", color="y")
 
 ##################
 #
@@ -306,7 +308,7 @@ drillPoints = {}
 drillPoints["race"] = bearingHoles
 
 dxfFromDict({}, saveFolder + "\\cage.dxf", drillPoints)
-#plotLinePoints(np.array(bearingHoles), "circle", color="k")
+plotLinePoints(np.array(bearingHoles), "circle", color="c")
 
 ##################
 #
