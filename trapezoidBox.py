@@ -9,14 +9,14 @@ import os
 import shutil
 import sys
 
-materialThickness = 12.0
-materialThicknessBase = 18.0
+materialThickness = 12.5
+materialThicknessBase = 18.5
 
 
 dogBoneDia = (1.0 / 8.0) * 25.4 + 0.5
 dogBoneType = "I"
-clearence = 0.2 / 2.0  # Clearence for inbetween fingers
-clearenceMaterial = 0.2 / 2.0  # Clearence for holes and material thickness
+clearence = -0.15 / 2.0  # Clearence for inbetween fingers
+clearenceMaterial = -0.35 / 2.0  # Clearence for holes and material thickness
 #clearence = 0.0
 
 powerCableHoleDia = 40.0
