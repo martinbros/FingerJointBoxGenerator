@@ -1,0 +1,33 @@
+Run 5
+DXF Gen: 2
+MFG Notes: No boot, no last pass, upcut bit
+Results: Holes fit well, a bit sloppy for fingers, fingers set to 12.5mm on this run
+
+Run 6
+DXF Gen: 3
+MFG Notes: Dust boot, no last pass, upcut bit
+Results: Lines are no longer straight, learned that the dust boot interferes with the cut quality
+
+Run 7
+DXF Gen: 3
+MFG Notes: No boot, no last pass, upcut bit
+Results: Smooth fit for fingers and holes, it is noticible that the bit isn't cutting straight when fitting pieces on the opposite site
+
+Run 8
+DXF Gen: 3
+MFG Notes: No boot, last pass 0.5mm, upcut bit
+Results: A bit tight but hammerable, this was confirmation that the dustboot and not the last pass was causing the curved lines
+
+Run 9
+DXF Gen: 3
+MFG Notes: No boot, last pass 0.15mm, up/down bit
+Results: Very tight fit but hammerable to the point of not being able to separate, good cut finish
+
+Run 10
+DXF Gen: 4
+MFG Notes: No boot, last pass ???0.15mm???, up/down bit
+Results: Opened up clearences a bit, still tight fit needs to be hammered
+
+Run 11
+DXF Gen: 5
+MFG Notes: No boot, last pass
