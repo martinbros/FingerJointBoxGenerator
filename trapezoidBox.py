@@ -9,13 +9,14 @@ import os
 import shutil
 import sys
 
-materialThickness = 12.5
-materialThicknessBase = 18.5
+materialThickness = 12.0
+materialThicknessBase = 18.0
 
 
 dogBoneDia = (1.0 / 8.0) * 25.4 + 0.5
 dogBoneType = "I"
-clearence = 0.2 / 2.0
+clearence = 0.2 / 2.0  # Clearence for inbetween fingers
+clearenceMaterial = 0.2 / 2.0  # Clearence for holes and material thickness
 #clearence = 0.0
 
 powerCableHoleDia = 40.0
@@ -207,11 +208,11 @@ dxfFromDict(layers, saveFolder + "\\angled.dxf", drillPoints)
 ##################
 
 # trapezoid wall mate holes
-bEdge.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, "I", drillNum=1)
+bEdge.genHoleBone(materialThickness + clearenceMaterial * 2.0, clearence, dogBoneDia, "I", drillNum=1)
 bEdge.rotateShiftElement("hole", [0.0, materialThickness / 2.0])
 drillList = np.array(bEdge.cordsHolesDrill)
 
-holeWidth = materialThickness * np.cos(np.pi / 2.0 - angle) + np.abs(topEdge.fingerLength) * np.cos(angle) + clearence * 2.0
+holeWidth = materialThickness * np.cos(np.pi / 2.0 - angle) + np.abs(topEdge.fingerLength) * np.cos(angle) + clearenceMaterial * 2.0
 holeOffsetFromEdge = materialThickness / np.sin(angle) + clearence
 holeCenterLine = trapBase - holeOffsetFromEdge + (holeWidth / 2.0)
 
@@ -328,7 +329,7 @@ finB.genFingerPointsBone(dogBoneDia, dogBoneType, True)
 finB.rotateShiftElement("finger", [0.0, clearence * 2.0])
 finB.cordsFinger = np.concatenate([finB.cordsFinger, np.array([[100.0, clearence * 2.0 + testWidth, 0], [0.0, clearence * 2.0 + testWidth, 0], [0.0, clearence * 2.0, 0]])])
 
-finB.genHoleBone(materialThickness + clearence * 2.0, clearence, dogBoneDia, dogBoneType)
+finB.genHoleBone(materialThickness + clearenceMaterial * 2.0, clearence, dogBoneDia, dogBoneType)
 finB.rotateShiftElement("hole", [0.0, ((testWidth - materialThickness) / -2.0) + -materialThickness])
 
 finB.cordsHoles.append(finA.cordsFinger)
