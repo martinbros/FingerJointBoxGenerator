@@ -4,7 +4,7 @@ MFG Notes: No boot, no last pass, upcut bit
 Results: Holes fit well, a bit sloppy for fingers, fingers set to 12.5mm on this run
 
 Run 6
-DXF Gen: 3
+DXF Gen: 3 ~ Clear -0.1 ClearMat -0.35
 MFG Notes: Dust boot, no last pass, upcut bit
 Results: Lines are no longer straight, learned that the dust boot interferes with the cut quality
 
@@ -24,10 +24,10 @@ MFG Notes: No boot, last pass 0.15mm, up/down bit
 Results: Very tight fit but hammerable to the point of not being able to separate, good cut finish
 
 Run 10
-DXF Gen: 4
+DXF Gen: 4 ~ Clear -0.125 ClearMat -0.325
 MFG Notes: No boot, last pass ???0.15mm???, up/down bit
 Results: Opened up clearences a bit, still tight fit needs to be hammered
 
 Run 11
-DXF Gen: 5
+DXF Gen: 5 ~ Clear -0.1 Clear Mat -0.3
 MFG Notes: No boot, last pass
