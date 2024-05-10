@@ -29,5 +29,5 @@ MFG Notes: No boot, last pass ???0.15mm???, up/down bit
 Results: Opened up clearences a bit, still tight fit needs to be hammered
 
 Run 11
-DXF Gen: 5 ~ Clear -0.1 Clear Mat -0.3
+DXF Gen: 5 ~ 
 MFG Notes: No boot, last pass

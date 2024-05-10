@@ -363,9 +363,9 @@ def plotLinePoints(points, plotType, color="k", marker="o"):
                 plt.scatter(x, y, color=color, marker=marker)
 
 
-def dxfFromDict(pointDict, fileName, drillDict={}):
+def dxfFromDict(pointDict, fileName, drillDict={}, units=4):
 
-    doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
+    doc = ezdxf.new(dxfversion='R2010', units=units)  # Create a new DXF document
     msp = doc.modelspace()
 
     dxfLayer = {}
