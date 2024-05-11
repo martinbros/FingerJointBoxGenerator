@@ -1,10 +1,10 @@
 Run 5
-DXF Gen: 2
+DXF Gen: 2 ~ Clear -0.1 ClearMat -0.35
 MFG Notes: No boot, no last pass, upcut bit
 Results: Holes fit well, a bit sloppy for fingers, fingers set to 12.5mm on this run
 
 Run 6
-DXF Gen: 3 ~ Clear -0.1 ClearMat -0.35
+DXF Gen: 3 ~ Clear -0.15 ClearMat -0.35
 MFG Notes: Dust boot, no last pass, upcut bit
 Results: Lines are no longer straight, learned that the dust boot interferes with the cut quality
 
@@ -29,5 +29,16 @@ MFG Notes: No boot, last pass ???0.15mm???, up/down bit
 Results: Opened up clearences a bit, still tight fit needs to be hammered
 
 Run 11
-DXF Gen: 5 ~ 
-MFG Notes: No boot, last pass
+DXF Gen: 5 ~ Clear -0.1 ClearMat -0.3
+MFG Notes: No boot, last pass 0.13mm, up/down bit
+Results: Finger to finger fit well, fingers do not enter slot. Nearly a 0.5mm difference between hole width and finger gap width when they should be the same. About a 1mm difference between hole thickness cut and drawing with the cut being smaller. Last pass was not reversed.
+
+Run 12
+DXF Gen: 5
+MFG Notes: No boot, last pass 0.13mm, up/down bit
+Results: Fingers slightly tighter than R11, Fingers now fit in holes but very tight. Last pass was in reverse direction.
+
+Run 13
+DXF Gen: 6 ~ Clear -0.075 ClearMat -0.325
+Tight fitting but still able to manually set.
+

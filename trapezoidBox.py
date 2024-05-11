@@ -15,8 +15,8 @@ materialThicknessBase = 18.5
 
 dogBoneDia = (1.0 / 8.0) * 25.4 + 0.5
 dogBoneType = "I"
-clearence = -0.1 / 2.0  # Clearence for inbetween fingers, double this value (before halving) for overlap
-clearenceMaterial = -0.3 / 2.0  # Clearence for holes and material thickness, this value (before halving) and clearence (before halving) for overlap
+clearence = -0.075 / 2.0  # Clearence for inbetween fingers, double this value (before halving) for overlap
+clearenceMaterial = -0.325 / 2.0  # Clearence for holes and material thickness, this value (before halving) and clearence (before halving) for overlap
 #clearence = 0.0
 
 powerCableHoleDia = 40.0
