@@ -26,33 +26,33 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
    
    - extra (float or list): A single value which is added to each end of the span or a list of two values which are added to the appropriate end of the span. This value can be positive or negative.
 
-2- From here, the fingers and/or mating holes can be generated using the following functions. Discussion of the input parameters can be found in the next section.
+2. From here, the fingers and/or mating holes can be generated using the following functions. Discussion of the input parameters can be found in the next section.
 
-- genFingerPoints: A list of XY points are stored in "self.cordsFinger". These points do not contain dogbones.
+   - genFingerPoints: A list of XY points are stored in "self.cordsFinger". These points do not contain dogbones.
 
-- genFingerPointsBone: A list of XYB points are stored in "self.cordsFinger". These points do contain dogbones.
+   - genFingerPointsBone: A list of XYB points are stored in "self.cordsFinger". These points do contain dogbones.
 
-- genHoleBone: A list of XYB points are stored in "self.cordsHoles". These points do contain dogbones.
+   - genHoleBone: A list of XYB points are stored in "self.cordsHoles". These points do contain dogbones.
 
-3- The generated points can now be shifted and/or rotated using the function "self.rotateShiftElement" with the following input parameters.
+3. The generated points can now be shifted and/or rotated using the function "self.rotateShiftElement" with the following input parameters.
 
-- element (string): using either "finger" or "hole", specify which coordinates need translation
+   - element (string): using either "finger" or "hole", specify which coordinates need translation
 
-- shiftOrigin (list): a list of x and y coordinates to which the fingers will be translated
+   - shiftOrigin (list): a list of x and y coordinates to which the fingers will be translated
 
-- angle (float): angle in degrees which the fingers will be rotated, this can be positive or negative
+   - angle (float): angle in degrees which the fingers will be rotated, this can be positive or negative
 
-4- Multiple edges can be joined together using numpy's concatenate or other python tools
+4. Multiple edges can be joined together using numpy's concatenate or other python tools
 
-- Note: The last point of one edgeA may be the first point of "edgeB", it would be good practice to omit the last point of "edgeA" prior to joining the points.
+   - Note: The last point of one edgeA may be the first point of "edgeB", it would be good practice to omit the last point of "edgeA" prior to joining the points.
   
   ```
   np.concatenate([edgeA.cordsFinger[:-1], edgeB.cordsFinger")
   ```
 
-5- After storing the points in a dictionary, said dictionary is passed to "dxfFromDict" which plots the lists as [LWPolylines](https://ezdxf.readthedocs.io/en/stable/dxfentities/lwpolyline.html) within layers as specified by the key of the dictionary.
+5. After storing the points in a dictionary, said dictionary is passed to "dxfFromDict" which plots the lists as [LWPolylines](https://ezdxf.readthedocs.io/en/stable/dxfentities/lwpolyline.html) within layers as specified by the key of the dictionary.
 
-6- See "dxfTest.py" and "trapezoidBox.py" as examples of how to use the functions
+6. See "dxfTest.py" and "trapezoidBox.py" as examples of how to use the functions
 
 ## Functions
 
