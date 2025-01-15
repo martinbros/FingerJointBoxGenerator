@@ -110,6 +110,8 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
 
 - drillDict(dictionary): Each dictionary key (str) become the layer name which the points we points will be plotted onto. Each coordinate corresponds to a XY paring and the radius of the drill. Below is an example:
   
-  - drillDict ["drillPoints] = [[0, 0, 0.2], [1, 0, 0.2], [2, 0, 0.4]]
+  ```
+  drillDict ["drillPoints] = [[0, 0, 0.2], [1, 0, 0.2], [2, 0, 0.4]]
+  ```
 
 - units(int): As specified by the [ezdxf documentation](https://ezdxf.readthedocs.io/en/stable/concepts/units.html#module-ezdxf.units), the dxf units can be specified. I have defaulted to mm. All coordinate generation is unitless.
