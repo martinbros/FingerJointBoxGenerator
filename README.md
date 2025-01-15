@@ -100,9 +100,11 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
 
 - pointDict(dictionary): Each dictionary key (str) becomes the layer name which the points will be plotted onto. Each coordinate corresponds to a XY paring and a bulge value. Below are some examples:
   
-  - pointDict["rectangle"] = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 0, 0], [0, 0, 0]]
+  ```
+  pointDict["rectangle"] = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 0, 0], [0, 0, 0]]
   
-  - pointDict["Ls"] = [[[0, 0, 0], [0, 1, 0], [1, 1, 0]], [[1, 0, 0], [2, 0, 0], [2, 1, 0]]] 
+  pointDict["Ls"] = [[[0, 0, 0], [0, 1, 0], [1, 1, 0]], [[1, 0, 0], [2, 0, 0], [2, 1, 0]]]
+  ```
 
 - fileName(str): Specify the filename and/or path of the dxf file to be generated, file extension must be stated
 
