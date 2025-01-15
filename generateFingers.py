@@ -252,7 +252,7 @@ class Edge:
             drillXPoints = self.drillPoints(drillNum=drillNum, invertDrill=not invertBone, widths=finWidths)  # Generate the x points
             self.cordsDrill = np.dstack((drillXPoints, np.full((1, len(drillXPoints)), self.fingerLength / 2.0)))[0]
 
-    def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType, openEnds=False,  invertHoles=False, drillNum=False):
+    def genHoleBone(self, materialThick, clearence, dogBoneDia, dogBoneType, openEnds=False, invertHoles=False, drillNum=False):
 
         if dogBoneType == "H":
             self.dogBoneOffsetX = dogBoneDia

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #import pretty_errors
-from generateFingers import Edge, plotLinePoints
+from generateFingers import Edge, plotLinePoints, dxfFromDict
 import matplotlib.pyplot as plt
 import numpy as np
 import ezdxf
@@ -37,7 +37,6 @@ layers["fHF"] = baseHF.cordsFinger
 layers["fHT"] = baseHT.cordsFinger
 layers["fXF"] = baseXF.cordsFinger
 layers["fXT"] = baseXT.cordsFinger
-
 layers["hIF"] = baseIF.cordsHoles
 layers["hIT"] = baseIT.cordsHoles
 layers["hHF"] = baseHF.cordsHoles
@@ -45,23 +44,10 @@ layers["hHT"] = baseHT.cordsHoles
 layers["hXF"] = baseXF.cordsHoles
 layers["hXT"] = baseXT.cordsHoles
 
+drillLayer = {}
+drillLayer["drill"] = baseIF.cordsDrill  # Pull coordinates for drill location
+drillRadList = np.full([drillLayer["drill"].shape[0], 1], 0.5)  # Create a list equal to the length of the drill coordinate list
+drillLayer["drill"] = np.append(drillLayer["drill"], drillRadList, axis=1)  # Append the drill radius to the coordinate list
 
-doc = ezdxf.new(dxfversion='R2010')  # Create a new DXF document
-msp = doc.modelspace()
 
-dxfLayer = {}
-
-for layer in layers:
-	dxfLayer[layer] = doc.layers.new(name=layer)  # Create Layer
-
-	if len(layers[layer][0]) == 3:
-		msp.add_lwpolyline(layers[layer], format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
-	else:
-		for hole in layers[layer]:
-			msp.add_lwpolyline(hole, format="xyb", dxfattribs={'layer': dxfLayer[layer].dxf.name})
-
-dxfLayer["circle"] = doc.layers.new(name="circle")  # Create Layer
-for point in baseIF.cordsDrill:
-	msp.add_circle(point, 0.5, dxfattribs={'layer': dxfLayer["circle"].dxf.name})
-
-doc.saveas("testGenerationPos.dxf")
+dxfFromDict(layers, "testGeneration.dxf", drillLayer)
