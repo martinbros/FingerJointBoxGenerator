@@ -1,10 +1,10 @@
-# FingerJointBoxGenerator
+# Finger Joint Generator
 
 Quick Look: Python script which generates DXF files to cut the shape of a finger joint
 
 ## Requirements
 
-- Generate dxf polylines of fingerjoints that are fully paramentric
+- Generate dxf polylines of finger joints that are fully parametric
 
 - Generate dxf polylines of holes which mate with fingers, these are also fully parametric
 
@@ -24,7 +24,7 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
    
    - span (float): The length of which the fingers will be generated
    
-   - extra (float or list): A single value which is added to each end of the span or a list of two values which are added to the appropirate end of the span. This value can be positive or negative.
+   - extra (float or list): A single value which is added to each end of the span or a list of two values which are added to the appropriate end of the span. This value can be positive or negative.
 
 2- From here, the fingers and/or mating holes can be generated using the following functions. Discussion of the input parameters can be found in the next section.
 
@@ -32,7 +32,7 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
 
 - genFingerPointsBone: A list of XYB points are stored in "self.cordsFinger". These points do contain dogbones.
 
-- genHoleBone: A list of XYB points are stored in "self.cordsHoles". These poins do contain dogbones.
+- genHoleBone: A list of XYB points are stored in "self.cordsHoles". These points do contain dogbones.
 
 3- The generated points can now be shifted and/or rotated using the function "self.rotateShiftElement" with the following input parameters.
 
@@ -42,11 +42,15 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
 
 - angle (float): angle in degrees which the fingers will be rotated, this can be positive or negative
 
-4- Multiple edges can be joined togeather using numpy's concatenate or other python tools
+4- Multiple edges can be joined together using numpy's concatenate or other python tools
 
-- Note: The last point of one edgeA may be the first point of edgeB, it would be good practice to omit the last point of edgeA prior to joining the points (i.e. "np.concatenate([edgeA.cordsFinger[:-1], edgeB.cordsFinger")
+- Note: The last point of one edgeA may be the first point of "edgeB", it would be good practice to omit the last point of "edgeA" prior to joining the points.
+  
+  ```
+  np.concatenate([edgeA.cordsFinger[:-1], edgeB.cordsFinger")
+  ```
 
-5- After storing the points in a dictionary, said dictionary is pased to "dxfFromDict" which plots the lists as [LWPolylines](https://ezdxf.readthedocs.io/en/stable/dxfentities/lwpolyline.html) within layers as specified by the key of the dictionary.
+5- After storing the points in a dictionary, said dictionary is passed to "dxfFromDict" which plots the lists as [LWPolylines](https://ezdxf.readthedocs.io/en/stable/dxfentities/lwpolyline.html) within layers as specified by the key of the dictionary.
 
 6- See "dxfTest.py" and "trapezoidBox.py" as examples of how to use the functions
 
@@ -56,19 +60,19 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
 
 *Input variables:*
 
-- dogBoneDia (float): Diameter of the donebone
+- dogBoneDia (float): Diameter of the dogbone
 
 - dogBoneType ("H", "X", "I"): Three options to generate dogbones, each one places the dogbone differently on internal corners. Useful if cutting the forms on a CNC
 
-- invertBone (bool): Change if the donebone is generated on the "top" or "bottom" of the finger. Useful when generating a mating finger edge.
+- invertBone (bool): Change if the dogbone is generated on the "top" or "bottom" of the finger. Useful when generating a mating finger edge.
 
-- drillNum (int): Generates a 2D list of drill locations. The int specifies how many drill locations per finger. Useful for mounting togeather edges.
+- drillNum (int): Generates a 2D list of drill locations. The int specifies how many drill locations per finger. Useful for mounting together edges.
 
 *Output Variables:*
 
 - self.cordsFinger (2D list): A list of XYB coordinates which are used by [LWPolylines](https://ezdxf.readthedocs.io/en/stable/dxfentities/lwpolyline.html) to plot out the finger's shape
 
-- self.cordsDrill (2D list): A list of XY coordines which specify the drill locations on a finger. If a finger/hole and drillpoints coordinates are generated and then translated using "self.rotateShiftElement", both the drillpoints and finger/hole coordinates are translated
+- self.cordsDrill (2D list): A list of XY coordinates which specify the drill locations on a finger. If a finger/hole and drill points coordinates are generated and then translated using "self.rotateShiftElement", both the drill points and finger/hole coordinates are translated
 
 **self.genHoleBone**
 
@@ -78,7 +82,7 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
 
 - clearence (float): How much the hole is increased, both the vertical and horizontal distance
 
-- dogBoneDia (float): Diameter of the donebone
+- dogBoneDia (float): Diameter of the dogbone
 
 - dogBoneType ("H", "X", "I"): Three options to generate dogbones, each one places the dogbone differently on internal corners. Useful if cutting the forms on a CNC
 
@@ -86,13 +90,13 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
 
 - invertHoles (bool): Generates the "inverse" holes. The "other" mating geometry
 
-- drillNum (int): Generates a 2D list of drill locations. The int specifies how many drill locations per space between holes. Useful for mounting togeather edges.
+- drillNum (int): Generates a 2D list of drill locations. The int specifies how many drill locations per space between holes. Useful for mounting together edges.
 
 *Output Variables:*
 
 - self.cordsHoles(3D list): The first list dimension is for each hole generated. The second list dimension is list of XYB coordinates which are used by [LWPolylines](https://ezdxf.readthedocs.io/en/stable/dxfentities/lwpolyline.html) to plot out the hole's shape.
 
-- self.cordsDrill (2D list): A list of XY coordines which specify the drill locations on a finger. If a finger/hole and drillpoints coordinates are generated and then translated using "self.rotateShiftElement", both the drillpoints and finger/hole coordinates are translated
+- self.cordsDrill (2D list): A list of XY coordinates which specify the drill locations on a finger. If a finger/hole and drill points coordinates are generated and then translated using "self.rotateShiftElement", both the drill points and finger/hole coordinates are translated
 
 **dxfFromDict**
 
@@ -114,4 +118,4 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
   drillDict ["drillPoints] = [[0, 0, 0.2], [1, 0, 0.2], [2, 0, 0.4]]
   ```
 
-- units(int): As specified by the [ezdxf documentation](https://ezdxf.readthedocs.io/en/stable/concepts/units.html#module-ezdxf.units), the dxf units can be specified. I have defaulted to mm. All coordinate generation is unitless.
+- units(int): As specified by the [ezdxf documentation](https://ezdxf.readthedocs.io/en/stable/concepts/units.html#module-ezdxf.units), the dxf units can be specified. I have defaulted to mm. All coordinate generation is unit-less.
