@@ -2,7 +2,7 @@
 
 Quick Look: Python script which generates DXF files to cut the shape of a finger joint
 
-## Requirements
+## Desired Capability
 
 - Generate dxf polylines of finger joints that are fully parametric
 
@@ -20,7 +20,7 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
    
    - fingerLength (float): The length of the finger, a negative number can be used to generate a finger in the opposite direction
    
-   - clearence (float): How much to inset the finger width to allow for mechanical clearence
+   - clearance (float): How much to inset the finger width to allow for mechanical clearance
    
    - span (float): The length of which the fingers will be generated
    
