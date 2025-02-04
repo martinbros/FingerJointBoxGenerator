@@ -119,3 +119,11 @@ Quick Look: Python script which generates DXF files to cut the shape of a finger
   ```
 
 - units(int): As specified by the [ezdxf documentation](https://ezdxf.readthedocs.io/en/stable/concepts/units.html#module-ezdxf.units), the dxf units can be specified. I have defaulted to mm. All coordinate generation is unit-less.
+
+## Example Build
+
+The DXF files generated from "trapezoidBox.py" were utilized to cut out the following display stand which was utilized to show the [Luggable PC](https://github.com/martinbros/Luggable-PC) at Open Sauce 2024. Incorporated into the bottom of the stand is a 0.75in bearing race so that the display could spin in place. 
+
+![top](photos\top.jpg)
+
+![bottom](photos\bottom.jpg)
